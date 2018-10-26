@@ -1,0 +1,40 @@
+/* Colors
+ *
+ * Light Paper: #f4f4f4
+ * Silky Pink/Tan: #dcd0c0
+ * Pale Gold: #c0b283
+ * Charcoal: #373737
+ *
+ * Dusty: #96858f
+ * Blue Lavendar: #6d7993
+ * Overcast: #9099a2
+ * Dark Paper: #d5d5d5
+ *
+ */
+@import url('https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css');
+
+body {
+    background-color: #d5d5d5;
+}
+.controls {
+    background-color: #dcd0c0;
+}
+
+.presentation {
+    background-color: #c0b283;
+}
+
+.non-month {
+    background-color: #9099a2;
+}
+
+.current-month {
+    background-color: #f4f4f4;
+}
+
+.date-text {
+    font-size: calc(6px + .5vw);
+}
+
+
+

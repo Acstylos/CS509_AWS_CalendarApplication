@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <!-- Required meta tags -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        
+        <link type="text/css" rel="stylesheet" href="css/style.css"/>
+        
+        <title>Calendar Management System - Boson</title>
+    </head>
+    <body>
+        <header></header>
+        <div class="container-fluid">
+            <div class="row justify-content-start">
+                <div class="col-sm-auto controls">
+                    <h3>Create a new calendar</h3>
+                    <form>
+                        <div class="form-row form-group">
+                            <label for="calendarName">Calendar Name</label>
+                            <input id="calendarName" type="text" class="form-control" placeholder="New Calendar Name">
+                        </div>
+                        <div class="form-row">
+                            <div class="col form-group">
+                                <label for="startDate">Start Date</label>
+                                <input id="startDate" type="text" class="form-control" placeholder="Start Date">
+                            </div>
+                            <div class="col form-group">
+                                <label for="endDate">End Date</label>
+                                <input id="endDate" type="text" class="form-control" placeholder="End Date">
+                            </div>
+                        </div>
+                        <div class="form-row form-group">
+                            <label for="duration">Timeslot Duration</label>
+                            <select id="duration" class="custom-select">
+                                <option selected value="1">10 minutes</option>
+                                <option value="2">15 minutes</option>
+                                <option value="3">20 minutes</option>
+                                <option value="4">30 minutes</option>
+                                <option value="5">60 minutes</option>
+                            </select>
+                        </div>
+                        <div class="form-row">
+                            <div class="col form-group">
+                                <label for="startTime">Start Time</label>
+                                <input id="startTime" type="text" class="form-control" placeholder="Start Time">
+                            </div>
+                            <div class="col form-group">
+                                <label for="endTime">End Time</label>
+                                <input id="endTime" type="text" class="form-control" placeholder="End Time">
+                            </div>
+                        </div>
+                        <div class="form-row form-group float-right">
+                            <button>Create</button>
+                            <button>Cancel</button>
+                        </div>
+                    </form>
+                    <br/>
+                    <h5>-- OR --</h5>
+                    <form>
+                        <div class="form-row">
+                            <select class="custom-select">
+                                <option selected>Select a calendar</option>
+                                <option value="1">Personal Calendar</option>
+                                <option value="2">Professional Calendar</option>
+                                <option value="3">Extra Calendar</option>
+                            </select>
+                        </div>
+                        <div class="form-row float-right">
+                            <button>Load</button>
+                            <button>Delete</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="col-sm flex-grow presentation">
+                Calendar goes here
+                </div>
+            </div>
+        </div>
+        <!-- Optional JavaScript -->
+        <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+    </body>
+</html>
