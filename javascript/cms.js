@@ -10,6 +10,7 @@ const createCalendarEndDate = "createCalendarEndDate";
 const createCalendarDuration = "createCalendarDuration";
 const createCalendarStartTime = "createCalendarStartTime";
 const createCalendarEndTime = "createCalendarEndTime";
+const loadedCalendarLocation = "loadedCalendar";
 // JSON object property names
 // newCalendarModel
 const calendarName = "calendarName";
@@ -118,7 +119,7 @@ function postCreateCalendar() {
 
 // Callback Functions
 function displayCalendar(data) {
-    alert(data);
+    document.getElementById(loadedCalendarLocation).innerHTML = "<p>New Calendar: </p>" + data;
 }
 
 function deleteCalendar(data) {
