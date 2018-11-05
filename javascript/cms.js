@@ -155,28 +155,16 @@ function addCalendarOptionToSelect(calendar, select){
 }
 
 /**
- * Updates the StartTime select element based on the duration
- * chosen, so as to only include values that work with
- * that duration.
+ * Updates the stepping of the start and end time pickers based on
+ * the duration that gets selected, forcing the pickers to use that
+ * duration when inputing start/end times.
  *
- * @param {*} duration A specific timeslot duration, in minutes.
  */
-function updateSelectStartTime(duration){
-    var select = document.getElementById.startTime;
-
-    var totalTimeslots = 1440/duration;
-    for (i = 0; i <= totalTimeslots; i++){
-        var option = document.createElement("option");
-        option.value
-
-    }
-
+function onSelectDuration(){
+    var duration = document.getElementById(createCalendarDuration).value;
+    $(startTimePicker).datetimepicker('stepping', duration);
+    $(endTimePicker).datetimepicker('stepping', duration);
 }
-
-
-
-
-
 
 /**
  * A function that wraps updateSelectCalendarDropdown with
@@ -188,15 +176,30 @@ function mockLoadCalendars(){
 }
 
 
-// setup date/time pickers
+// Initialize date/time pickers
 $(function () {
     $(startDatePicker).datetimepicker({
-        locale: 'en'
+        locale: 'en',
+        format: 'L',
+        defaultDate: new Date()
     });
     $(endDatePicker).datetimepicker({
         local: 'en',
-        format: 'L'
-    })
+        format: 'L',
+        defaultDate: new Date()
+    });
+    $(startTimePicker).datetimepicker({
+        local: 'en',
+        format: 'HH:mm',
+        defaultDate: '0',
+        stepping: 10
+    });
+    $(endTimePicker).datetimepicker({
+        local: 'en',
+        format: 'HH:mm',
+        defaultDate: '0',
+        stepping: 10
+    });
 });
 
 

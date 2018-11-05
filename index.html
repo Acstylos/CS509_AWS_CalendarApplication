@@ -43,7 +43,7 @@
                             </div>
                             <div class="form-row form-group">
                                 <label for="createCalendarDuration">Timeslot Duration</label>
-                                <select id="createCalendarDuration" class="custom-select">
+                                <select id="createCalendarDuration" class="custom-select" onchange="onSelectDuration()">
                                     <option selected value="10">10 minutes</option>
                                     <option value="15">15 minutes</option>
                                     <option value="20">20 minutes</option>
@@ -54,11 +54,21 @@
                             <div class="form-row">
                                 <div class="col form-group">
                                     <label for="createCalendarStartTime">Start Time</label>
-                                    <input id="createCalendarStartTime" type="text" class="form-control" placeholder="Start Time">
+                                    <div id="startTimePicker" class="input-group date" data-target-input="nearest">
+                                        <input id="createCalendarStartTime" data-target="#startTimePicker" type="text" class="form-control datetimepicker-input">
+                                        <div class="input-group-append" data-target="#startTimePicker" data-toggle="datetimepicker">
+                                            <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                                        </div>
+                                    </div>
                                 </div>
                                 <div class="col form-group">
                                     <label for="createCalendarEndTime">End Time</label>
-                                    <input id="createCalendarEndTime" type="text" class="form-control" placeholder="End Time">
+                                    <div id="endTimePicker" class="input-group date" data-target-input="nearest">
+                                        <input id="createCalendarEndTime" data-target="#endTimePicker" type="text" class="form-control datetimepicker-input">
+                                        <div class="input-group-append" data-target="#endTimePicker" data-toggle="datetimepicker">
+                                            <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </form>
