@@ -136,24 +136,24 @@ function deleteCalendar(data) {
  * Updates the calendarNameSelect select element with a set of options
  * based on the given list of calendars.
  *
- * @param {*} listOfCalendars JSON array of calendar objects.
+ * @param {*} listOfCalendars String format of a JSON array of calendar objects.
  */
 function updateSelectCalendarDropdown(listOfCalendars){
     var select = document.getElementById(calendarNameSelect);
-    listOfCalendars.calendars.forEach(calendarName => addCalendarOptionToSelect(calendarName, select));
+    jsonCalendars = JSON.parse(listOfCalendars);
+    jsonCalendars.calendars.forEach(calendarName => addCalendarOptionToSelect(calendarName, select));
 }
 
 /**
  * Adds calendar information as an option to a given select element
  *
- * @param {*} calendar A JSON calendar object
+ * @param {*} calendarName A calendar name
  * @param {*} select The select element to add the option to
  */
-function addCalendarOptionToSelect(calendar, select){
+function addCalendarOptionToSelect(calendarName, select){
     var option = document.createElement("option");
-    // TODO actually pull the right json elements out
-    option.value = calendar;
-    option.appendChild(document.createTextNode(calendar));
+    option.value = calendarName;
+    option.appendChild(document.createTextNode(calendarName));
 
     select.appendChild(option);
 }
