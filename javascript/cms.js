@@ -20,11 +20,14 @@ const startDate = "startDate";
 const endDate = "endDate";
 const duration = "duration";
 
-var mockCalendarList = [
-    {value: "Personal", text: "Personal"},
-    {value: "Professional", text: "Professional"},
-    {value: "Extra", text: "Extra"}
-]
+var mockCalendarList = {
+    calendars: [
+        "Personal",
+        "Professional",
+        "alksjf;lajds;lfa"
+    ]
+}
+
 
 // REST Requests
 
@@ -137,7 +140,7 @@ function deleteCalendar(data) {
  */
 function updateSelectCalendarDropdown(listOfCalendars){
     var select = document.getElementById(calendarNameSelect);
-    listOfCalendars.forEach(calendar => addCalendarOptionToSelect(calendar, select));
+    listOfCalendars.calendars.forEach(calendarName => addCalendarOptionToSelect(calendarName, select));
 }
 
 /**
@@ -149,8 +152,8 @@ function updateSelectCalendarDropdown(listOfCalendars){
 function addCalendarOptionToSelect(calendar, select){
     var option = document.createElement("option");
     // TODO actually pull the right json elements out
-    option.value = calendar.value;
-    option.appendChild(document.createTextNode(calendar.text));
+    option.value = calendar;
+    option.appendChild(document.createTextNode(calendar));
 
     select.appendChild(option);
 }
@@ -204,4 +207,5 @@ $(function () {
 });
 
 
-window.onload = mockLoadCalendars();
+window.onload = getCalendarNames();
+//window.onload = mockLoadCalendars();
