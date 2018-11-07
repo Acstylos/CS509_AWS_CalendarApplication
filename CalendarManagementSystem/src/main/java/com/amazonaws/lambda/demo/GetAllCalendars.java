@@ -17,7 +17,7 @@ public class GetAllCalendars implements RequestStreamHandler {
     // connect to DB and load all existed calendars later
     
     
-    public class CalendarList{
+    private class CalendarList{
         ArrayList<String> calendars = new ArrayList<String>();
     }
 

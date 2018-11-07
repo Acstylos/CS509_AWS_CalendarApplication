@@ -22,8 +22,6 @@ import com.google.gson.GsonBuilder;
 
 public class LoadCalendarByName implements RequestStreamHandler {
 
-    JSONParser parser = new JSONParser();
-
     @Override
     public void handleRequest(InputStream input, OutputStream output, Context context) throws IOException {
 
@@ -36,32 +34,25 @@ public class LoadCalendarByName implements RequestStreamHandler {
         headers.put("Access-Control-Allow-Origin", "*");
 
         BufferedReader reader = new BufferedReader(new InputStreamReader(input));
-        JSONObject event;
-
         GsonBuilder builder = new GsonBuilder();
         builder.serializeNulls();
         Gson gson = builder.create();
-        try {
-            event = (JSONObject) parser.parse(reader);
-            if (event.get("pathParameters") != null) {
-                JSONObject pps = (JSONObject) event.get("pathParameters");
-                String calendarName = (String) pps.get("calendarName");
-                logger.log("Received calendar name is" + calendarName);
 
-                Calendar c1 = new Calendar(calendarName);
-                String result = gson.toJson(c1);
+        APIGatewayRequest request = gson.fromJson(reader, APIGatewayRequest.class);
 
-                APIGatewayResponse apiGatewayResponse = new APIGatewayResponse(200, headers, result);
-                String response = gson.toJson(apiGatewayResponse);
+        if (request.getPathParameters() != null) {
+            String calendarName = request.getPathParameters().calendarName;
+            logger.log("Received calendar name is" + calendarName);
+            Calendar c1 = new Calendar(calendarName);
+            String result = gson.toJson(c1);
 
-                OutputStreamWriter writer = new OutputStreamWriter(output, "UTF-8");
-                writer.write(response);
-                writer.close();
+            APIGatewayResponse apiGatewayResponse = new APIGatewayResponse(200, headers, result);
+            String response = gson.toJson(apiGatewayResponse);
 
-            }
-        } catch (ParseException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            OutputStreamWriter writer = new OutputStreamWriter(output, "UTF-8");
+            writer.write(response);
+            writer.close();
+
         }
 
     }
