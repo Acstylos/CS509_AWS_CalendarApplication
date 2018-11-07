@@ -32,7 +32,7 @@ public class LambdaFunctionHandlerTest {
 
     @Test
     public void testLambdaFunctionHandler() {
-        LambdaFunctionHandler handler = new LambdaFunctionHandler();
+        LoadCalendarByName handler = new LoadCalendarByName();
         Context ctx = createContext();
 
         String output = handler.handleRequest(input, ctx);
