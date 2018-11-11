@@ -8,12 +8,10 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.util.HashMap;
 
-import javax.swing.text.html.HTMLEditorKit.Parser;
-
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
-
+import com.amazonaws.lambda.db.CalendarsDAO;
+import com.amazonaws.lambda.model.APIGatewayRequest;
+import com.amazonaws.lambda.model.APIGatewayResponse;
+import com.amazonaws.lambda.model.Calendar;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.LambdaLogger;
 import com.amazonaws.services.lambda.runtime.RequestStreamHandler;
@@ -22,6 +20,8 @@ import com.google.gson.GsonBuilder;
 
 public class LoadCalendarByName implements RequestStreamHandler {
 
+    CalendarsDAO cDao = new CalendarsDAO();
+    
     @Override
     public void handleRequest(InputStream input, OutputStream output, Context context) throws IOException {
 
@@ -32,6 +32,7 @@ public class LoadCalendarByName implements RequestStreamHandler {
         HashMap<String, String> headers = new HashMap<>();
         headers.put("Content-Type", "application/json");
         headers.put("Access-Control-Allow-Origin", "*");
+        headers.put("Access-Control-Methods", "GET");
 
         BufferedReader reader = new BufferedReader(new InputStreamReader(input));
         GsonBuilder builder = new GsonBuilder();
@@ -43,7 +44,13 @@ public class LoadCalendarByName implements RequestStreamHandler {
         if (request.getPathParameters() != null) {
             String calendarName = request.getPathParameters().calendarName;
             logger.log("Received calendar name is" + calendarName);
-            Calendar c1 = new Calendar(calendarName);
+            Calendar c1 = null;
+            try {
+                c1 = cDao.getCalendar(calendarName);
+            } catch (Exception e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
             String result = gson.toJson(c1);
 
             APIGatewayResponse apiGatewayResponse = new APIGatewayResponse(200, headers, result);

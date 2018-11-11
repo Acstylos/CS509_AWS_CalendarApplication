@@ -1,4 +1,4 @@
-package com.amazonaws.lambda.demo;
+package com.amazonaws.lambda.model;
 
 import java.util.Map;
 

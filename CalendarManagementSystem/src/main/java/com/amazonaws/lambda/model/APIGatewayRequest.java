@@ -1,31 +1,33 @@
-package com.amazonaws.lambda.demo;
-
-import com.amazonaws.services.s3.Headers;
+package com.amazonaws.lambda.model;
 
 public class APIGatewayRequest {
     String httpMethod;    
     String body; //A JSON string of the request payload;
     
-    private PathParameters pathParameters;
+    PathParameters pathParameters;
     QueryStringParameters queryStringParameters;
     Headers headers;
     
     
-    class PathParameters{
-        String calendarName;
+    public class PathParameters{
+        public String calendarName;
     }
     
-    class QueryStringParameters{
+    public class QueryStringParameters{
         //Refactor the name later 
         String arg1;
     }
     
-    class Headers{
+    public class Headers{
         String headers;
     }
     
     public PathParameters getPathParameters() {
         return this.pathParameters;
+    }
+    
+    public String getGody() {
+        return this.body;
     }
     
 
