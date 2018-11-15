@@ -142,6 +142,7 @@ function updateSelectCalendarDropdown(listOfCalendars){
     var select = document.getElementById(calendarNameSelect);
     jsonCalendars = JSON.parse(listOfCalendars);
     jsonCalendars.calendars.forEach(calendarName => addCalendarOptionToSelect(calendarName, select));
+    updateCalendarTemplate();
 }
 
 /**
@@ -179,6 +180,135 @@ function mockLoadCalendars(){
     updateSelectCalendarDropdown(mockCalendarList);
 }
 
+function updateCalendarTemplate(){
+    var destination = document.getElementById("templateOutput");
+    destination.innerHTML = "";
+
+    var template = document.getElementById("fullCalendar");
+    var clone = document.importNode(template.content, true);
+
+    var calendarMonth = clone.getElementById("calendarMonth");
+    calendarMonth.textContent = "NOVEMBER";
+    var calendarYear = clone.getElementById("calendarYear");
+    calendarYear.textContent = "2018";
+
+    var calendarBody = clone.getElementById("calendarBody");
+
+    //TODO: calculate weeks in calendar, and loop that many weeks to the calendar
+    addWeekToCalendar(calendarBody);
+    addWeekToCalendar(calendarBody);
+    addWeekToCalendar(calendarBody);
+    addWeekToCalendar(calendarBody);
+    addWeekToCalendar(calendarBody);
+    addWeekToCalendar(calendarBody);
+
+    destination.appendChild(clone);
+}
+
+function addWeekToCalendar(calendarBody){
+    var template = document.getElementById("calendarWeek");
+    var clone = document.importNode(template.content, true);
+
+    var newWeek = clone.getElementById("newWeek");
+
+    addDayToWeek("Sunday!", newWeek);
+    addDayToWeek("monday", newWeek);
+    addDayToWeek("tuesday", newWeek);
+    addDayToWeek("wednesday", newWeek);
+    addDayToWeek("thursday", newWeek);
+    addDayToWeek("Friday!", newWeek);
+    addDayToWeek("saturday", newWeek);
+
+    calendarBody.appendChild(clone);
+}
+
+function addDayToWeek(day, week){
+    var template = document.getElementById("calendarDay");
+    var clone = document.importNode(template.content, true);
+
+    var dayDate = clone.getElementById("dayDate");
+    dayDate.textContent = day;
+    var dayInfo = clone.getElementById("dayInfo");
+    dayInfo = "2 Meetings";
+
+    week.appendChild(clone);
+}
+
+function showDailySchedule(event){
+    var destination = document.getElementById("templateOutput");
+    destination.innerHTML = "";
+
+    var template = document.getElementById("fullDay");
+    var clone = document.importNode(template.content, true);
+
+    var dailySchedule = clone.getElementById("dayTimeslots");
+
+    addDailyScheduleHeader(dailySchedule);
+    // TODO: use the event to get the day data?
+    addTimeslotToDailySchedule("10:30", dailySchedule);
+    addTimeslotToDailySchedule("11:00", dailySchedule);
+    addTimeslotToDailySchedule("11:30", dailySchedule);
+    addTimeslotToDailySchedule("12:00", dailySchedule);
+    addTimeslotToDailySchedule("12:30", dailySchedule);
+    addTimeslotToDailySchedule("13:00", dailySchedule);
+    addTimeslotToDailySchedule("13:30", dailySchedule);
+    addTimeslotToDailySchedule("14:00", dailySchedule);
+    addTimeslotToDailySchedule("14:30", dailySchedule);
+    addTimeslotToDailySchedule("15:00", dailySchedule);
+    addTimeslotToDailySchedule("16:30", dailySchedule);
+    addTimeslotToDailySchedule("17:00", dailySchedule);
+    addTimeslotToDailySchedule("17:30", dailySchedule);
+    addTimeslotToDailySchedule("18:00", dailySchedule);
+    addTimeslotToDailySchedule("18:30", dailySchedule);
+    addTimeslotToDailySchedule("19:00", dailySchedule);
+    addTimeslotToDailySchedule("19:30", dailySchedule);
+    addTimeslotToDailySchedule("20:00", dailySchedule);
+
+    destination.appendChild(clone);
+}
+
+function addDailyScheduleHeader(schedule){
+    // TODO: force this to stay at the top of the list group?
+    
+    var template = document.getElementById("dailyScheduleHeader");
+    var clone = document.importNode(template.content, true);
+
+    schedule.appendChild(clone);
+}
+
+function addTimeslotToDailySchedule(timeslot, day){
+    var template = document.getElementById("dayTimeslot");
+    var clone = document.importNode(template.content, true);
+
+    var timeslotStartTime = clone.getElementById("timeslotStartTime");
+    timeslotStartTime.textContent = timeslot;
+    var timeslotIsOpen = clone.getElementById("timeslotIsOpen");
+    timeslotIsOpen.textContent = "true";
+    var timeslotAttendee = clone.getElementById("timeslotAttendee");
+    timeslotAttendee.textContent = "G. Heineman";
+    var timeslotLocation = clone.getElementById("timeslotLocation");
+    timeslotLocation.textContent = "";
+
+    // TODO: if is timeslot is a meeting change button text to be cancel meeting
+    // otherwise leave it as schedule meeting.
+
+    day.appendChild(clone);
+}
+
+function showScheduleMeetingForm(){
+    var destination = document.getElementById("templateOutput");
+    destination.innerHTML = "";
+
+    var template = document.getElementById("scheduleMeetingForm");
+    var clone = document.importNode(template.content, true);
+
+    destination.appendChild(clone);
+}
+
+function showMonthlySchedule(){
+    // TODO: have this work on a loaded calendar name or something
+    updateCalendarTemplate();
+}
 
 // Initialize date/time pickers
 $(function () {

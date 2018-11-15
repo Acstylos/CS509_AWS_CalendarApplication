@@ -91,12 +91,84 @@
                 </div>
                 <div class="col-sm flex-grow presentation">
                     Calendar Loading Output:
-                    <div id="loadedCalendar">
-
+                    <div id="loadedCalendar"></div>
+                    <div id="templateOutput" class="m-2"></div>
+                    <div id="calendarControls" class="row justify-content-start">
+                        <button id="showMonthly" class="" onclick="showMonthlySchedule()">Show Monthly Schedule</button>
                     </div>
                 </div>
             </div>
         </div>
+        <!-- Full/Monthly Calendar Templates -->
+        <template id="fullCalendar">
+            <div class="row justify-content-start">
+                <div id="calendarContent" class="col scheduleContainer">
+                    <div id="calendarTitle" class="row">
+                        <h3 id="calendarMonth" class="col">MONTH</h3>
+                        <h3 id="calendarYear" class="col">YEAR</h3>
+                    </div>
+                    <div id="calendarBody" class="container-fluid">
+                    </div>
+                </div>
+            </div>
+        </template>
+        <template id="calendarWeek">
+            <div id="newWeek" class="card-group">
+            </div>
+        </template>
+        <template id="calendarDay">
+            <div id="newDay" class="card ">
+                <div id="dayDate" class="card-header text-right">Date</div>
+                <div class="card-body">
+                    <p id="dayInfo" class="card-text">3 Meetings</p>
+                </div>
+                <div class="card-footer">
+                    <button id="showDaily" class="" onclick="showDailySchedule(this)">See Schedule</button>
+                </div>
+            </div>
+        </template>
+        <!-- Daily/Timeslot Templates -->
+        <template id="fullDay">
+            <h3 id="date">date</h3>
+            <div id="dayTimeslots" class="list-group scheduleContainer">
+            </div>
+        </template>
+        <template id="dailyScheduleHeader">
+            <div class="list-group-item">
+                <div class="row">
+                    <div class="col">Start Time</div>
+                    <div class="col">Open?</div>
+                    <div class="col">Attendee</div>
+                    <div class="col">Location</div>
+                    <div class="col"></div><!--Just here to keep columns aligned? Is there a better way?-->
+                </div>
+            </div>
+        </template>
+        <template id="dayTimeslot">
+            <div class="list-group-item">
+                <div class="row">
+                    <div id="timeslotStartTime" class="col"></div>
+                    <div id="timeslotIsOpen" class="col"></div>
+                    <div id="timeslotAttendee" class="col"></div>
+                    <div id="timeslotLocation" class="col"></div>
+                    <button id="scheduleMeeting" class="col" onclick="showScheduleMeetingForm()">Schedule Meeting</button>
+                </div>
+            </div>
+        </template>
+        <template id="scheduleMeetingForm">
+            <div>
+                <form class="form-row w-25">
+                    <label for="scheduleMeetingAttendee">Attendee</label>
+                    <input id="scheduleMeetingAttendee" type="text" class="form-control" placeholder="Attendee?">
+                    <label for="scheduleMeetingLocation">Location</label>
+                    <input id="scheduleMeetingLocation" type="text" class="form-control" placeholder="(Optional) Location">
+                    <div class="form-row float-right">
+                        <button>Schedule</button>
+                        <button>Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </template>
         <!-- Bootstrap JavaScript -->
         <!-- jQuery first, then Popper.js, then Bootstrap JS -->
         <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
