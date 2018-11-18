@@ -121,7 +121,7 @@
                 <div id="dayDate" class="card-header text-right monthly-day-header"></div>
                 <div class="card-body in-calendar">
                     <p id="dayInfo" class="card-text"></p>
-                    <button id="showDaily" class="" onclick="showDailySchedule(this)">See Schedule</button>
+                    <button id="showDaily" class="" onclick="getDailySchedule(this)">See Schedule</button>
                 </div>
             </div>
         </template>
@@ -130,7 +130,7 @@
                 <div id="dayDate" class="card-header text-right monthly-day-header"></div>
                 <div class="card-body non-calendar">
                     <p id="dayInfo" class="card-text"></p>
-                    <button id="showDaily" class="" onclick="">Add to Calendar</button>
+                    <button id="addDay" class="" onclick="">Add to Calendar</button>
                 </div>
             </div>
         </template>
@@ -158,7 +158,7 @@
                     <div id="timeslotIsOpen" class="col"></div>
                     <div id="timeslotAttendee" class="col"></div>
                     <div id="timeslotLocation" class="col"></div>
-                    <button id="scheduleMeeting" class="col" onclick="showScheduleMeetingForm()">Schedule Meeting</button>
+                    <button id="meetingAction" class="col" onclick="showScheduleMeetingForm()">Schedule Meeting</button>
                 </div>
             </div>
         </template>

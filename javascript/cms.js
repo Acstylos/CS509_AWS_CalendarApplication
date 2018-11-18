@@ -1,10 +1,15 @@
 
 
-// API-Endpoints
+//#region API-Endpoints
+
 const apiUrl = "https://x325bb0xrc.execute-api.us-east-2.amazonaws.com/Alpha/";
 const calendarsEndpoint = "calendars/";
 const timeslotsEndpoint = "timeslots/";
-// HTML IDs/Names
+
+//#endregion
+
+//#region HTML IDs/Names
+
 const calendarNameSelect = "calendarNameSelection";
 const createCalendarName = "createCalendarName";
 const createCalendarStartDate = "createCalendarStartDate";
@@ -13,7 +18,11 @@ const createCalendarDuration = "createCalendarDuration";
 const createCalendarStartTime = "createCalendarStartTime";
 const createCalendarEndTime = "createCalendarEndTime";
 const loadedCalendarLocation = "loadedCalendar";
-// JSON object property names
+
+//#endregion
+
+//#region JSON object property names
+
 // newCalendarModel
 const calendarName = "calendarName";
 const startTime = "startTime";
@@ -22,24 +31,19 @@ const startDate = "startDate";
 const endDate = "endDate";
 const duration = "duration";
 
+//#endregion
+
+//#region Usable Constants
+
 const dateFormat = "YYYY-MM-DD";
+const dayCardIdPrefix = "d_";
 
-var monthLongStrings = [ 'January',
-'February',
-'March',
-'April',
-'May',
-'June',
-'July',
-'August',
-'September',
-'October',
-'November',
-'December' ]
+var monthLongStrings = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+var monthShortStrings = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sept','Oct','Nov','Dec'];
 
-var monthShortStrings = [ 'Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sept','Oct','Nov','Dec' ]
+//#endregion
 
-// REST Requests
+//#region REST Requests
 
 /**
  * Makes the API call to get the calendar specified by the name
@@ -56,6 +60,7 @@ function getCalendarByName() {
         if(xhr.readyState === xhr.DONE) {
             if(xhr.status === 200){
                 displayCalendar(xhr.responseText);
+                //updateLoadedCalendarDisplay(xhr.responseText);
             }
         }
     };
@@ -76,7 +81,8 @@ function deleteCalendarByName() {
     xhr.onloadend = function () {
         if(xhr.readyState === xhr.DONE) {
             if(xhr.status === 200){
-                deleteCalendar(xhr.responseText);
+                alert(xhr.responseText);
+                getCalendarNames();
             }
         }
     };
@@ -124,24 +130,64 @@ function postCreateCalendar() {
         if(xhr.readyState === xhr.DONE) {
             if(xhr.status === 200){
                 displayCalendar(xhr.responseText);
+                //updateLoadedCalendarDisplay(xhr.responseText);
             }
         }
     };
     xhr.send(jsonRequest);
 }
 
-// Callback Functions
+function getDailySchedule(event) {
+    /*
+    var dayToView = event.parentElement.parentElement;
+    
+    var request = apiUrl + calendarsEndpoint;
+
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", request, true);
+    xhr.onloadend = function () {
+        if(xhr.readyState === xhr.DONE) {
+            if(xhr.status === 200){
+                //showDailySchedule(xhr.responseText);
+                showDailySchedule(mockDailySchedule);
+            }
+        }
+    };
+    xhr.send(jsonRequest);
+    // Here to prevent multi-line comment overflow */
+
+    showDailySchedule(mockDailySchedule);
+}
+
+function postCancelMeeting(){
+    alert("Canceling Meeting");
+}
+
+//#endregion
+
+// TODO: remove this and replace with updateLoadedCalendarDisplay() in REST-requests
 function displayCalendar(data) {
     document.getElementById(loadedCalendarLocation).innerHTML = "<p>New Calendar: </p>" + data;
 }
 
-function deleteCalendar(data) {
-    alert(data);
-    // don't forget to re-update the list of available calendars
-    getCalendarNames();
+//#region Calendar Creation
+
+/**
+ * Updates the stepping of the start and end time pickers based on
+ * the duration that gets selected, forcing the pickers to use that
+ * duration when inputing start/end times.
+ *
+ */
+function onSelectDuration(){
+    var duration = document.getElementById(createCalendarDuration).value;
+    $(startTimePicker).datetimepicker('stepping', duration);
+    $(endTimePicker).datetimepicker('stepping', duration);
 }
 
-// Helper Functions
+//#endregion
+
+//#region Calendar Load/Delete Dropdown Menu
+
 /**
  * Updates the calendarNameSelect select element with a set of options
  * based on the given list of calendars.
@@ -169,42 +215,11 @@ function addCalendarOptionToSelect(calendarName, select){
     select.appendChild(option);
 }
 
-/**
- * Updates the stepping of the start and end time pickers based on
- * the duration that gets selected, forcing the pickers to use that
- * duration when inputing start/end times.
- *
- */
-function onSelectDuration(){
-    var duration = document.getElementById(createCalendarDuration).value;
-    $(startTimePicker).datetimepicker('stepping', duration);
-    $(endTimePicker).datetimepicker('stepping', duration);
-}
+//#endregion
 
-/**
- * A function that wraps updateSelectCalendarDropdown with
- * a mock object for testing.
- *
- */
-function mockGetCalendarDropdownOptions(){
-    updateSelectCalendarDropdown(mockCalendarList);
-}
+//#region Show Monthly Calendar View
 
-function mockLoadSingleCalendar(){
-    updateCalendarTemplate(mockCalendarData);
-}
-
-
-function getUtcMoment(dateString){
-    // We should be using UTC so we can convert between timezones
-    return moment(dateString + "Z", dateFormat);
-}
-
-
-function updateCalendarTemplate(calendar){
-    var calendarName = calendar.name;
-    var timeslots = calendar.timeslots;
-
+function updateLoadedCalendarDisplay(calendar){
     var destination = document.getElementById("templateOutput");
     destination.innerHTML = "";
 
@@ -216,18 +231,18 @@ function updateCalendarTemplate(calendar){
     // Determine where in the actual calendar the data-calendar starts and ends
     // and use this to properly create the HTML elements to display the data
     // properly
+    var calendarName = calendar.name;
+    var timeslots = calendar.timeslots;
     var firstDay = getUtcMoment(timeslots[0].date);
     var firstWeek = firstDay.week();
     var lastWeek = getUtcMoment(timeslots[timeslots.length-1].date).week();
 
     for(i = 0; i <= (lastWeek - firstWeek); i++){
-        // select all timeslots where week = firstWeek + i
         var currentWeekTimeslots = timeslots.filter(function(timeslot){
             var timeslotDay = getUtcMoment(timeslot.date);
             return timeslotDay.week() == (firstWeek+i);
         });
-        // add that array of timeslots to the calendar
-        addWeekToCalendar(currentWeekTimeslots, calendarBody);
+        calendarBody.appendChild(addWeekToCalendar(currentWeekTimeslots));
     }
 
     var calendarMonth = clone.getElementById("calendarMonth");
@@ -238,7 +253,7 @@ function updateCalendarTemplate(calendar){
     destination.appendChild(clone);
 }
 
-function addWeekToCalendar(timeslots, calendarBody){
+function addWeekToCalendar(timeslots){
     var template = document.getElementById("calendarWeek");
     var clone = document.importNode(template.content, true);
 
@@ -256,35 +271,41 @@ function addWeekToCalendar(timeslots, calendarBody){
         });
         if(timeslotsForDay.length == 0){
             var nonDay = moment().year(year).week(weekInYear).day(j);
-            addNonDayToWeek(nonDay, newWeek);
+            newWeek.appendChild(addNonDayToWeek(nonDay));
         } else {
-            addDayToWeek(timeslotsForDay, newWeek);
+            newWeek.appendChild(addDayToWeek(timeslotsForDay));
         }
     }
 
-    calendarBody.appendChild(clone);
+    return clone;
 }
 
-function addNonDayToWeek(day, week){
+function addNonDayToWeek(day){
     var template = document.getElementById("nonCalendarDay");
     var clone = document.importNode(template.content, true);
 
+    var cardDiv = clone.getElementById("newDay");
+    cardDiv.id = dayCardIdPrefix + setDateAsMonthAndDay(day.date(), day.month());
+
     var dayDate = clone.getElementById("dayDate");
-    dayDate.textContent = getDateAsMonthAndDay(day.date(), day.month());
+    dayDate.textContent = setFirstDateAsMonthAndDay(day.date(), day.month());
     var dayInfo = clone.getElementById("dayInfo");
     dayInfo.textContent = "Not-In-Calendar";
 
-    week.appendChild(clone);
+    return clone;
 }
 
-function addDayToWeek(timeslots, week){
+function addDayToWeek(timeslots){
     var template = document.getElementById("calendarDay");
     var clone = document.importNode(template.content, true);
 
     var day = getUtcMoment(timeslots[0].date);
 
+    var cardDiv = clone.getElementById("newDay");
+    cardDiv.id = dayCardIdPrefix + setDateAsMonthAndDay(day.date(), day.month());
+
     var dayDate = clone.getElementById("dayDate");
-    dayDate.textContent = getDateAsMonthAndDay(day.date(), day.month());
+    dayDate.textContent = setFirstDateAsMonthAndDay(day.date(), day.month());
     var dayInfo = clone.getElementById("dayInfo");
     var meetingCount = 0;
     for(k = 0; k < timeslots.length; k++){
@@ -294,24 +315,20 @@ function addDayToWeek(timeslots, week){
     }
     dayInfo.textContent = meetingCount.toString() + " Meetings";
 
-    week.appendChild(clone);
+    return clone;
 }
 
-function getDateAsMonthAndDay(date, month){
-    if(date == 1){
-        date = monthShortStrings[month] + " " + date;
-    }
-    return date;
+function showMonthlySchedule(){
+    // TODO: have this work on a loaded calendar name or something
+    // updateCalendarTemplate();
+    mockLoadSingleCalendar()
 }
 
+//#endregion
 
+//#region Show Daily Schedule View
 
-
-
-
-
-
-function showDailySchedule(event){
+function showDailySchedule(timeslots){
     var destination = document.getElementById("templateOutput");
     destination.innerHTML = "";
 
@@ -321,25 +338,9 @@ function showDailySchedule(event){
     var dailySchedule = clone.getElementById("dayTimeslots");
 
     addDailyScheduleHeader(dailySchedule);
-    // TODO: use the event to get the day data?
-    addTimeslotToDailySchedule("10:30", dailySchedule);
-    addTimeslotToDailySchedule("11:00", dailySchedule);
-    addTimeslotToDailySchedule("11:30", dailySchedule);
-    addTimeslotToDailySchedule("12:00", dailySchedule);
-    addTimeslotToDailySchedule("12:30", dailySchedule);
-    addTimeslotToDailySchedule("13:00", dailySchedule);
-    addTimeslotToDailySchedule("13:30", dailySchedule);
-    addTimeslotToDailySchedule("14:00", dailySchedule);
-    addTimeslotToDailySchedule("14:30", dailySchedule);
-    addTimeslotToDailySchedule("15:00", dailySchedule);
-    addTimeslotToDailySchedule("16:30", dailySchedule);
-    addTimeslotToDailySchedule("17:00", dailySchedule);
-    addTimeslotToDailySchedule("17:30", dailySchedule);
-    addTimeslotToDailySchedule("18:00", dailySchedule);
-    addTimeslotToDailySchedule("18:30", dailySchedule);
-    addTimeslotToDailySchedule("19:00", dailySchedule);
-    addTimeslotToDailySchedule("19:30", dailySchedule);
-    addTimeslotToDailySchedule("20:00", dailySchedule);
+    for(i = 0; i < timeslots.length; i++){
+        addTimeslotToDailySchedule(timeslots[i], dailySchedule);
+    }
 
     destination.appendChild(clone);
 }
@@ -358,16 +359,21 @@ function addTimeslotToDailySchedule(timeslot, day){
     var clone = document.importNode(template.content, true);
 
     var timeslotStartTime = clone.getElementById("timeslotStartTime");
-    timeslotStartTime.textContent = timeslot;
+    timeslotStartTime.textContent = timeslot.startTime;
     var timeslotIsOpen = clone.getElementById("timeslotIsOpen");
-    timeslotIsOpen.textContent = "true";
+    timeslotIsOpen.textContent = timeslot.isOpen.toString();
     var timeslotAttendee = clone.getElementById("timeslotAttendee");
-    timeslotAttendee.textContent = "G. Heineman";
+    timeslotAttendee.textContent = timeslot.attendee;
     var timeslotLocation = clone.getElementById("timeslotLocation");
-    timeslotLocation.textContent = "";
+    timeslotLocation.textContent = timeslot.location;
 
     // TODO: if is timeslot is a meeting change button text to be cancel meeting
     // otherwise leave it as schedule meeting.
+    if(!timeslot.isOpen){
+        var meetingActionButton = clone.getElementById("meetingAction");
+        meetingActionButton.textContent = "Cancel Meeting"
+        meetingActionButton.onclick = postCancelMeeting;
+    }
 
     day.appendChild(clone);
 }
@@ -382,23 +388,65 @@ function showScheduleMeetingForm(){
     destination.appendChild(clone);
 }
 
-function showMonthlySchedule(){
-    // TODO: have this work on a loaded calendar name or something
-    // updateCalendarTemplate();
-    mockLoadSingleCalendar()
+//#endregion
+
+//#region Generalized Helper Functions
+
+function setFirstDateAsMonthAndDay(date, month){
+    var newDateString = date;
+    if(date == 1){
+        newDateString = setDateAsMonthAndDay(date, month);
+    }
+    return newDateString;
 }
 
-// Initialize date/time pickers
+function setDateAsMonthAndDay(date, month){
+    return monthShortStrings[month] + " " + date;
+}
+
+/**
+ * Converts a given YYYY-MM-DD date string into a momentjs object
+ * following UTC-time, to standardize it.
+ *
+ * @param {String} dateString A date as a string in the format YYYY-MM-DD
+ * @returns A momentjs object representing the time in the dateString.
+ */
+function getUtcMoment(dateString){
+    // We should be using UTC so we can convert between timezones
+    return moment(dateString + "Z", dateFormat);
+}
+
+//#endregion
+
+//#region Mock/Testing Function Calls
+
+/**
+ * A function that wraps updateSelectCalendarDropdown with
+ * a mock object for testing.
+ *
+ */
+function mockGetCalendarDropdownOptions(){
+    updateSelectCalendarDropdown(mockCalendarList);
+}
+
+function mockLoadSingleCalendar(){
+    updateLoadedCalendarDisplay(mockCalendarData);
+}
+
+//#endregion
+
+//#region Initialize date/time pickers
+
 $(function () {
     $(startDatePicker).datetimepicker({
         locale: 'en',
         format: 'L',
-        defaultDate: new Date()
+        defaultDate: new moment()
     });
     $(endDatePicker).datetimepicker({
         local: 'en',
         format: 'L',
-        defaultDate: new Date()
+        defaultDate: new moment()
     });
     $(startTimePicker).datetimepicker({
         local: 'en',
@@ -414,6 +462,6 @@ $(function () {
     });
 });
 
+//#endregion
 
 window.onload = getCalendarNames();
-//window.onload = mockLoadCalendars();
