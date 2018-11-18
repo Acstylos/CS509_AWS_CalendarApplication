@@ -119,18 +119,9 @@
         <template id="calendarDay">
             <div id="newDay" class="card">
                 <div id="dayDate" class="card-header text-right monthly-day-header"></div>
-                <div class="card-body in-calendar">
+                <div id="dayBody" class="card-body in-calendar">
                     <p id="dayInfo" class="card-text"></p>
-                    <button id="showDaily" class="" onclick="getDailySchedule(this)">See Schedule</button>
-                </div>
-            </div>
-        </template>
-        <template id="nonCalendarDay">
-            <div id="newDay" class="card">
-                <div id="dayDate" class="card-header text-right monthly-day-header"></div>
-                <div class="card-body non-calendar">
-                    <p id="dayInfo" class="card-text"></p>
-                    <button id="addDay" class="" onclick="">Add to Calendar</button>
+                    <button id="dayAction" class="" onclick="getDailySchedule(this)">See Schedule</button>
                 </div>
             </div>
         </template>
