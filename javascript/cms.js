@@ -1,3 +1,5 @@
+
+
 // API-Endpoints
 const apiUrl = "https://x325bb0xrc.execute-api.us-east-2.amazonaws.com/Alpha/";
 const calendarsEndpoint = "calendars/";
@@ -20,14 +22,22 @@ const startDate = "startDate";
 const endDate = "endDate";
 const duration = "duration";
 
-var mockCalendarList = {
-    calendars: [
-        "Personal",
-        "Professional",
-        "alksjf;lajds;lfa"
-    ]
-}
+const dateFormat = "YYYY-MM-DD";
 
+var monthLongStrings = [ 'January',
+'February',
+'March',
+'April',
+'May',
+'June',
+'July',
+'August',
+'September',
+'October',
+'November',
+'December' ]
+
+var monthShortStrings = [ 'Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sept','Oct','Nov','Dec' ]
 
 // REST Requests
 
@@ -142,7 +152,7 @@ function updateSelectCalendarDropdown(listOfCalendars){
     var select = document.getElementById(calendarNameSelect);
     jsonCalendars = JSON.parse(listOfCalendars);
     jsonCalendars.calendars.forEach(calendarName => addCalendarOptionToSelect(calendarName, select));
-    updateCalendarTemplate();
+    mockLoadSingleCalendar();
 }
 
 /**
@@ -176,63 +186,130 @@ function onSelectDuration(){
  * a mock object for testing.
  *
  */
-function mockLoadCalendars(){
+function mockGetCalendarDropdownOptions(){
     updateSelectCalendarDropdown(mockCalendarList);
 }
 
-function updateCalendarTemplate(){
+function mockLoadSingleCalendar(){
+    updateCalendarTemplate(mockCalendarData);
+}
+
+
+function getUtcMoment(dateString){
+    // We should be using UTC so we can convert between timezones
+    return moment(dateString + "Z", dateFormat);
+}
+
+
+function updateCalendarTemplate(calendar){
+    var calendarName = calendar.name;
+    var timeslots = calendar.timeslots;
+
     var destination = document.getElementById("templateOutput");
     destination.innerHTML = "";
 
     var template = document.getElementById("fullCalendar");
     var clone = document.importNode(template.content, true);
 
-    var calendarMonth = clone.getElementById("calendarMonth");
-    calendarMonth.textContent = "NOVEMBER";
-    var calendarYear = clone.getElementById("calendarYear");
-    calendarYear.textContent = "2018";
-
     var calendarBody = clone.getElementById("calendarBody");
 
-    //TODO: calculate weeks in calendar, and loop that many weeks to the calendar
-    addWeekToCalendar(calendarBody);
-    addWeekToCalendar(calendarBody);
-    addWeekToCalendar(calendarBody);
-    addWeekToCalendar(calendarBody);
-    addWeekToCalendar(calendarBody);
-    addWeekToCalendar(calendarBody);
+    // Determine where in the actual calendar the data-calendar starts and ends
+    // and use this to properly create the HTML elements to display the data
+    // properly
+    var firstDay = getUtcMoment(timeslots[0].date);
+    var firstWeek = firstDay.week();
+    var lastWeek = getUtcMoment(timeslots[timeslots.length-1].date).week();
+
+    for(i = 0; i <= (lastWeek - firstWeek); i++){
+        // select all timeslots where week = firstWeek + i
+        var currentWeekTimeslots = timeslots.filter(function(timeslot){
+            var timeslotDay = getUtcMoment(timeslot.date);
+            return timeslotDay.week() == (firstWeek+i);
+        });
+        // add that array of timeslots to the calendar
+        addWeekToCalendar(currentWeekTimeslots, calendarBody);
+    }
+
+    var calendarMonth = clone.getElementById("calendarMonth");
+    calendarMonth.textContent = monthLongStrings[firstDay.month()];
+    var calendarYear = clone.getElementById("calendarYear");
+    calendarYear.textContent = firstDay.year();
 
     destination.appendChild(clone);
 }
 
-function addWeekToCalendar(calendarBody){
+function addWeekToCalendar(timeslots, calendarBody){
     var template = document.getElementById("calendarWeek");
     var clone = document.importNode(template.content, true);
 
     var newWeek = clone.getElementById("newWeek");
 
-    addDayToWeek("Sunday!", newWeek);
-    addDayToWeek("monday", newWeek);
-    addDayToWeek("tuesday", newWeek);
-    addDayToWeek("wednesday", newWeek);
-    addDayToWeek("thursday", newWeek);
-    addDayToWeek("Friday!", newWeek);
-    addDayToWeek("saturday", newWeek);
+    firstDate = getUtcMoment(timeslots[0].date);
+    var weekInYear = firstDate.week();
+    var year = firstDate.year();
+
+    // Loop through the days in the week
+    for(j = 0; j < 7; j++){
+        var timeslotsForDay = timeslots.filter(function(timeslot){
+            var timeslotDay = getUtcMoment(timeslot.date);
+            return timeslotDay.day() == j;
+        });
+        if(timeslotsForDay.length == 0){
+            var nonDay = moment().year(year).week(weekInYear).day(j);
+            addNonDayToWeek(nonDay, newWeek);
+        } else {
+            addDayToWeek(timeslotsForDay, newWeek);
+        }
+    }
 
     calendarBody.appendChild(clone);
 }
 
-function addDayToWeek(day, week){
-    var template = document.getElementById("calendarDay");
+function addNonDayToWeek(day, week){
+    var template = document.getElementById("nonCalendarDay");
     var clone = document.importNode(template.content, true);
 
     var dayDate = clone.getElementById("dayDate");
-    dayDate.textContent = day;
+    dayDate.textContent = getDateAsMonthAndDay(day.date(), day.month());
     var dayInfo = clone.getElementById("dayInfo");
-    dayInfo = "2 Meetings";
+    dayInfo.textContent = "Not-In-Calendar";
 
     week.appendChild(clone);
 }
+
+function addDayToWeek(timeslots, week){
+    var template = document.getElementById("calendarDay");
+    var clone = document.importNode(template.content, true);
+
+    var day = getUtcMoment(timeslots[0].date);
+
+    var dayDate = clone.getElementById("dayDate");
+    dayDate.textContent = getDateAsMonthAndDay(day.date(), day.month());
+    var dayInfo = clone.getElementById("dayInfo");
+    var meetingCount = 0;
+    for(k = 0; k < timeslots.length; k++){
+        if(!timeslots[k].isOpen){
+            meetingCount++;
+        }
+    }
+    dayInfo.textContent = meetingCount.toString() + " Meetings";
+
+    week.appendChild(clone);
+}
+
+function getDateAsMonthAndDay(date, month){
+    if(date == 1){
+        date = monthShortStrings[month] + " " + date;
+    }
+    return date;
+}
+
+
+
+
+
+
+
 
 function showDailySchedule(event){
     var destination = document.getElementById("templateOutput");
@@ -307,7 +384,8 @@ function showScheduleMeetingForm(){
 
 function showMonthlySchedule(){
     // TODO: have this work on a loaded calendar name or something
-    updateCalendarTemplate();
+    // updateCalendarTemplate();
+    mockLoadSingleCalendar()
 }
 
 // Initialize date/time pickers

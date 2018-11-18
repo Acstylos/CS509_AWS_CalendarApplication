@@ -31,12 +31,16 @@ body {
     height: 75vh;
 }
 
-.non-month {
-    background-color: #9099a2;
+.non-calendar {
+    background-color: #999999;
 }
 
-.current-month {
+.in-calendar {
     background-color: #f4f4f4;
+}
+
+.monthly-day-header {
+    background-color: #dbdbdb;
 }
 
 .date-text {

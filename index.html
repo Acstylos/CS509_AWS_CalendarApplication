@@ -117,13 +117,20 @@
             </div>
         </template>
         <template id="calendarDay">
-            <div id="newDay" class="card ">
-                <div id="dayDate" class="card-header text-right">Date</div>
-                <div class="card-body">
-                    <p id="dayInfo" class="card-text">3 Meetings</p>
-                </div>
-                <div class="card-footer">
+            <div id="newDay" class="card">
+                <div id="dayDate" class="card-header text-right monthly-day-header"></div>
+                <div class="card-body in-calendar">
+                    <p id="dayInfo" class="card-text"></p>
                     <button id="showDaily" class="" onclick="showDailySchedule(this)">See Schedule</button>
+                </div>
+            </div>
+        </template>
+        <template id="nonCalendarDay">
+            <div id="newDay" class="card">
+                <div id="dayDate" class="card-header text-right monthly-day-header"></div>
+                <div class="card-body non-calendar">
+                    <p id="dayInfo" class="card-text"></p>
+                    <button id="showDaily" class="" onclick="">Add to Calendar</button>
                 </div>
             </div>
         </template>
@@ -179,6 +186,7 @@
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/moment.min.js"></script>
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/tempusdominus-bootstrap-4/5.0.1/js/tempusdominus-bootstrap-4.min.js"></script>
         <!-- Calendar Management System Javascript -->
+        <!--<script type="text/javascript" src="javascript/mock_variables.js"></script>-->
         <script type="text/javascript" src="javascript/cms.js"></script>
     </body>
 </html>
