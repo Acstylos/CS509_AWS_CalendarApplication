@@ -5,6 +5,7 @@
 const apiUrl = "https://x325bb0xrc.execute-api.us-east-2.amazonaws.com/Alpha/";
 const calendarsEndpoint = "calendars/";
 const timeslotsEndpoint = "timeslots/";
+const modifyDayEndpoint = "Day/";
 
 //#endregion
 
@@ -46,6 +47,12 @@ const timeslotDisplayLocation = "timeslotLocation";
 const timeslotDisplayButton = "meetingAction";
 
 const loadedCalendarLocation = "loadedCalendar";
+// For Add/Remove Day form
+const modifyDayTemplate = "modifyCalendarDateForm";
+const modifyDayDatePicker = "modifyDatePicker";
+const modifyCalendarDateInput = "modifyCalendarDateInput";
+
+var loadedCalendarName = "";
 
 //#endregion
 
@@ -58,6 +65,7 @@ const endTime = "endTime";
 const startDate = "startDate";
 const endDate = "endDate";
 const duration = "duration";
+const modifyCalendarDate = "date";
 
 //#endregion
 
@@ -87,8 +95,8 @@ function getCalendarByName() {
     xhr.onloadend = function () {
         if(xhr.readyState === xhr.DONE) {
             if(xhr.status === 200){
-                displayCalendar(xhr.responseText);
-                //updateLoadedCalendarDisplay(xhr.responseText);
+                //displayCalendar(xhr.responseText);
+                updateLoadedCalendarDisplay(xhr.responseText);
             }
         }
     };
@@ -157,8 +165,8 @@ function postCreateCalendar() {
     xhr.onloadend = function () {
         if(xhr.readyState === xhr.DONE) {
             if(xhr.status === 200){
-                displayCalendar(xhr.responseText);
-                //updateLoadedCalendarDisplay(xhr.responseText);
+                //displayCalendar(xhr.responseText);
+                updateLoadedCalendarDisplay(xhr.responseText);
             }
         }
     };
@@ -187,20 +195,57 @@ function getDailySchedule(event) {
     showDailySchedule(mockDailySchedule);
 }
 
-function postCancelMeeting(event){
+function getMonthlySchedule(){
+
+}
+
+function putCancelMeeting(event){
     alert("Canceling Meeting");
 }
 
-function postAddNewDay(event){
-    alert("Adding Day");
+function putScheduleMeeting(event){
+    alert("Scheduling Meeting");
+}
+
+function putAddNewDay(event){
+    var formData = {};
+    formData[modifyCalendarDate] = document.getElementById(modifyCalendarDateInput).value;
+    var jsonRequest = JSON.stringify(formData);
+
+    var request = apiUrl + calendarsEndpoint + loadedCalendarName + "/" + modifyDayEndpoint;
+    /*
+    var xhr = new XMLHttpRequest();
+    xhr.open("PUT", request, true);
+    xhr.onloadend = function () {
+        if(xhr.readyState === xhr.DONE) {
+            if(xhr.status === 200){
+                alert(xhr.responseText);
+            }
+        }
+    };
+    //xhr.send(jsonRequest);*/
+}
+
+function deleteRemoveDay(event){
+    var formData = {};
+    formData[modifyCalendarDate] = document.getElementById(modifyCalendarDateInput).value;
+    var jsonRequest = JSON.stringify(formData);
+
+    var request = apiUrl + calendarsEndpoint + loadedCalendarName + "/" + modifyDayEndpoint;
+    /*
+    var xhr = new XMLHttpRequest();
+    xhr.open("DELETE", request, true);
+    xhr.onloadend = function () {
+        if(xhr.readyState === xhr.DONE) {
+            if(xhr.status === 200){
+                alert(xhr.responseText);
+            }
+        }
+    };
+    //xhr.send(jsonRequest);*/
 }
 
 //#endregion
-
-// TODO: remove this and replace with updateLoadedCalendarDisplay() in REST-requests
-function displayCalendar(data) {
-    document.getElementById(loadedCalendarLocation).innerHTML = "<p>New Calendar: </p>" + data;
-}
 
 //#region Calendar Creation
 
@@ -230,7 +275,6 @@ function updateSelectCalendarDropdown(listOfCalendars){
     var select = document.getElementById(calendarNameSelect);
     jsonCalendars = JSON.parse(listOfCalendars);
     jsonCalendars.calendars.forEach(calendarName => addCalendarOptionToSelect(calendarName, select));
-    mockLoadSingleCalendar();
 }
 
 /**
@@ -251,7 +295,7 @@ function addCalendarOptionToSelect(calendarName, select){
 
 //#region Show Monthly Calendar View
 
-function updateLoadedCalendarDisplay(calendar){
+function updateLoadedCalendarDisplay(calendarString){
     var destination = document.getElementById(calendarDisplay);
     destination.innerHTML = "";
 
@@ -260,10 +304,12 @@ function updateLoadedCalendarDisplay(calendar){
 
     var calendarBody = clone.getElementById(monthlyDisplayBody);
 
+    var calendar = JSON.parse(calendarString);
     // Determine where in the actual calendar the data-calendar starts and ends
     // and use this to properly create the HTML elements to display the data
     // properly
     var calendarName = calendar.name;
+    loadedCalendarName = calendarName;
     var timeslots = calendar.timeslots;
     var firstDay = getUtcMoment(timeslots[0].date);
     var firstWeek = firstDay.week();
@@ -411,7 +457,7 @@ function addTimeslotToDailySchedule(timeslot, day){
     if(!timeslot.isOpen){
         var meetingActionButton = clone.getElementById(timeslotDisplayButton);
         meetingActionButton.textContent = "Cancel Meeting"
-        meetingActionButton.setAttribute("onclick", "postCancelMeeting(this);");
+        meetingActionButton.setAttribute("onclick", "putCancelMeeting(this);");
     }
 
     day.appendChild(clone);
@@ -427,6 +473,30 @@ function showScheduleMeetingForm(){
 
     var template = document.getElementById("scheduleMeetingForm");
     var clone = document.importNode(template.content, true);
+
+    destination.appendChild(clone);
+}
+
+//#endregion
+
+//#region Modify Calendar Day
+
+function showModifyCalendarForm(){
+    var destination = document.getElementById(calendarDisplay);
+    destination.innerHTML = "";
+
+    var template = document.getElementById(modifyDayTemplate);
+    var clone = document.importNode(template.content, true);
+
+    var modifyDayPicker = clone.getElementById(modifyDayDatePicker);
+
+    $(function () {
+        $(modifyDayPicker).datetimepicker({
+            local: 'en',
+            format: 'L',
+            defaultDate: new moment()
+        });
+    });
 
     destination.appendChild(clone);
 }

@@ -95,6 +95,7 @@
                     <div id="templateOutput" class="m-2"></div>
                     <div id="calendarControls" class="row justify-content-start">
                         <button id="showMonthly" class="" onclick="showMonthlySchedule()">Show Monthly Schedule</button>
+                        <button id="showModifyDay" class="" onclick="showModifyCalendarForm()">Modify Calendar Day</button>
                     </div>
                 </div>
             </div>
@@ -170,14 +171,15 @@
         <!-- Modify Calendar Date Form -->
         <template id="modifyCalendarDateForm">
             <form class="col form-group">
-                <label for="modifyCalendarDateLabel">Date to add</label>
+                <label for="modifyCalendarDateInput">Date to Modify</label>
                 <div id="modifyDatePicker" class="input-group date" data-target-input="nearest">
                     <input id="modifyCalendarDateInput" data-target="#modifyDatePicker" type="text" class="form-control datetimepicker-input">
                     <div class="input-group-append" data-target="#modifyDatePicker" data-toggle="datetimepicker">
                         <div class="input-group-text"><i class="fa fa-calendar"></i></div>
                     </div>
                 </div>
-                <button id="modifyDateAction" class="" onclick="addDay()">Add Day</button>
+                <button id="addDay" class="" onclick="putAddNewDay()">Add Day</button>
+                <button id="removeDay" class="" onclick="deleteRemoveDay()">Remove Day</button>
             </form>
         </template>
         <!-- Bootstrap JavaScript -->
