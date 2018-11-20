@@ -90,7 +90,6 @@
                     </div>
                 </div>
                 <div class="col-sm flex-grow presentation">
-                    Calendar Loading Output:
                     <div id="loadedCalendar"></div>
                     <div id="templateOutput" class="m-2"></div>
                     <div id="calendarControls" class="row justify-content-start">
@@ -148,24 +147,10 @@
                 <div class="row">
                     <div id="timeslotStartTime" class="col"></div>
                     <div id="timeslotIsOpen" class="col"></div>
-                    <div id="timeslotAttendee" class="col"></div>
-                    <div id="timeslotLocation" class="col"></div>
-                    <button id="meetingAction" class="col" onclick="showScheduleMeetingForm()">Schedule Meeting</button>
+                    <input id="timeslotAttendee" type="text" class="col m-1" placeholder="Attendee?">
+                    <input id="timeslotLocation" type="text" class="col m-1" placeholder="(Optional) Location"> 
+                    <button id="meetingAction" class="col" onclick="putScheduleMeeting(this)">Schedule Meeting</button>
                 </div>
-            </div>
-        </template>
-        <template id="scheduleMeetingForm">
-            <div>
-                <form class="form-row w-25">
-                    <label for="scheduleMeetingAttendee">Attendee</label>
-                    <input id="scheduleMeetingAttendee" type="text" class="form-control" placeholder="Attendee?">
-                    <label for="scheduleMeetingLocation">Location</label>
-                    <input id="scheduleMeetingLocation" type="text" class="form-control" placeholder="(Optional) Location">
-                    <div class="form-row float-right">
-                        <button>Schedule</button>
-                        <button>Cancel</button>
-                    </div>
-                </form>
             </div>
         </template>
         <!-- Modify Calendar Date Form -->
@@ -178,9 +163,9 @@
                         <div class="input-group-text"><i class="fa fa-calendar"></i></div>
                     </div>
                 </div>
-                <button id="addDay" class="" onclick="putAddNewDay()">Add Day</button>
-                <button id="removeDay" class="" onclick="deleteRemoveDay()">Remove Day</button>
             </form>
+            <button id="addDay" class="" onclick="putAddNewDay(this)">Add Day</button>
+            <button id="removeDay" class="" onclick="deleteRemoveDay(this)">Remove Day</button>
         </template>
         <!-- Bootstrap JavaScript -->
         <!-- jQuery first, then Popper.js, then Bootstrap JS -->

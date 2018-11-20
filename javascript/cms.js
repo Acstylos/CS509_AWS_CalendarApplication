@@ -6,6 +6,7 @@ const apiUrl = "https://x325bb0xrc.execute-api.us-east-2.amazonaws.com/Alpha/";
 const calendarsEndpoint = "calendars/";
 const timeslotsEndpoint = "timeslots/";
 const modifyDayEndpoint = "Day/";
+const meetingEndpoint = "meeting"
 
 //#endregion
 
@@ -199,11 +200,59 @@ function getMonthlySchedule(){
 
 }
 
-function putCancelMeeting(event){
+function postCancelMeeting(event){
+    var parentRow = event.parentElement;
+    // TODO: Where do I get this?
+    var timeslotId = 0;
+
+    var formData = {};
+    formData["attendee"] = parentRow.children[2].value;
+    formData["location"] = parentRow.children[3].value;
+    var jsonRequest = JSON.stringify(formData);
+
+    var request = apiUrl + calendarsEndpoint + loadedCalendarName + "/" + timeslotsEndpoint + timeslotId + "/" + meetingEndpoint;
+    /*
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", request, true);
+    xhr.onloadend = function () {
+        if(xhr.readyState === xhr.DONE) {
+            if(xhr.status === 200){
+                alert(xhr.responseText);
+            }
+        }
+    };
+    //xhr.send(jsonRequest);*/
     alert("Canceling Meeting");
 }
 
 function putScheduleMeeting(event){
+    var parentRow = event.parentElement;
+    var attendee = parentRow.children[2].value;
+    var location = parentRow.children[3].value;
+    if(attendee == ""){
+        alert("No attendee");
+        return;
+    }
+    // TODO: Where do I get this?
+    var timeslotId = 0;
+
+    var formData = {};
+    formData["attendee"] = attendee;
+    formData["location"] = location;
+    var jsonRequest = JSON.stringify(formData);
+
+    var request = apiUrl + calendarsEndpoint + loadedCalendarName + "/" + timeslotsEndpoint + timeslotId + "/" + meetingEndpoint;
+    /*
+    var xhr = new XMLHttpRequest();
+    xhr.open("PUT", request, true);
+    xhr.onloadend = function () {
+        if(xhr.readyState === xhr.DONE) {
+            if(xhr.status === 200){
+                alert(xhr.responseText);
+            }
+        }
+    };
+    //xhr.send(jsonRequest);*/
     alert("Scheduling Meeting");
 }
 
@@ -323,6 +372,8 @@ function updateLoadedCalendarDisplay(calendarString){
         calendarBody.appendChild(addWeekToCalendar(currentWeekTimeslots));
     }
 
+    var calendarLoadedInfo = document.getElementById(loadedCalendarLocation);
+    calendarLoadedInfo.textContent = "Loaded Calendar: " + loadedCalendarName;
     var calendarMonth = clone.getElementById(monthlyDisplayHeaderMonth);
     calendarMonth.textContent = monthLongStrings[firstDay.month()];
     var calendarYear = clone.getElementById(monthlyDisplayHeaderYear);
@@ -405,9 +456,18 @@ function addDayToWeek(timeslots){
 }
 
 function showMonthlySchedule(){
-    // TODO: have this work on a loaded calendar name or something
-    // updateCalendarTemplate();
-    mockLoadSingleCalendar()
+    var request = apiUrl + calendarsEndpoint + loadedCalendarName;
+
+    var xhr = new XMLHttpRequest();
+    xhr.open("GET", request, true);
+    xhr.onloadend = function () {
+        if(xhr.readyState === xhr.DONE) {
+            if(xhr.status === 200){
+                updateLoadedCalendarDisplay(xhr.responseText);
+            }
+        }
+    };
+    xhr.send(null);
 }
 
 //#endregion
@@ -448,34 +508,26 @@ function addTimeslotToDailySchedule(timeslot, day){
     var timeslotIsOpen = clone.getElementById(timeslotDisplayIsOpen);
     timeslotIsOpen.textContent = timeslot.isOpen.toString();
     var timeslotAttendee = clone.getElementById(timeslotDisplayAttendee);
-    timeslotAttendee.textContent = timeslot.attendee;
     var timeslotLocation = clone.getElementById(timeslotDisplayLocation);
-    timeslotLocation.textContent = timeslot.location;
 
-    // TODO: if is timeslot is a meeting change button text to be cancel meeting
-    // otherwise leave it as schedule meeting.
     if(!timeslot.isOpen){
+
+        timeslotAttendee.value = timeslot.attendee;
+        timeslotAttendee.placeholder = "";
+        timeslotAttendee.disabled = true;
+        timeslotLocation.value = timeslot.location;
+        timeslotLocation.placeholder = "";
+        timeslotLocation.disabled = true;
+
         var meetingActionButton = clone.getElementById(timeslotDisplayButton);
         meetingActionButton.textContent = "Cancel Meeting"
-        meetingActionButton.setAttribute("onclick", "putCancelMeeting(this);");
+        meetingActionButton.setAttribute("onclick", "postCancelMeeting(this);");
     }
 
     day.appendChild(clone);
 }
 
 //#endregion
-
-//#region Schedule/Cancel Meetings
-
-function showScheduleMeetingForm(){
-    var destination = document.getElementById("templateOutput");
-    destination.innerHTML = "";
-
-    var template = document.getElementById("scheduleMeetingForm");
-    var clone = document.importNode(template.content, true);
-
-    destination.appendChild(clone);
-}
 
 //#endregion
 
