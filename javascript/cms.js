@@ -5,7 +5,7 @@
 const apiUrl = "https://x325bb0xrc.execute-api.us-east-2.amazonaws.com/Alpha/";
 const calendarsEndpoint = "calendars/";
 const timeslotsEndpoint = "timeslots/";
-const modifyDayEndpoint = "Day/";
+const modifyDayEndpoint = "Day";
 const meetingEndpoint = "meeting"
 
 //#endregion
@@ -156,7 +156,7 @@ function postCreateCalendar() {
     formData[endTime] = document.getElementById(createCalendarEndTime).value;
     formData[startDate] = document.getElementById(createCalendarStartDate).value;
     formData[endDate] = document.getElementById(createCalendarEndDate).value;
-    formData[duration] = document.getElementById(createCalendarDuration).value;
+    formData[duration] = Number(document.getElementById(createCalendarDuration).value);
     var jsonRequest = JSON.stringify(formData);
 
     var request = apiUrl + calendarsEndpoint;
@@ -166,7 +166,6 @@ function postCreateCalendar() {
     xhr.onloadend = function () {
         if(xhr.readyState === xhr.DONE) {
             if(xhr.status === 200){
-                //displayCalendar(xhr.responseText);
                 updateLoadedCalendarDisplay(xhr.responseText);
             }
         }
@@ -262,17 +261,18 @@ function putAddNewDay(event){
     var jsonRequest = JSON.stringify(formData);
 
     var request = apiUrl + calendarsEndpoint + loadedCalendarName + "/" + modifyDayEndpoint;
-    /*
+    
     var xhr = new XMLHttpRequest();
     xhr.open("PUT", request, true);
     xhr.onloadend = function () {
         if(xhr.readyState === xhr.DONE) {
             if(xhr.status === 200){
                 alert(xhr.responseText);
+                showMonthlySchedule();
             }
         }
     };
-    //xhr.send(jsonRequest);*/
+    xhr.send(jsonRequest);
 }
 
 function deleteRemoveDay(event){
@@ -281,17 +281,18 @@ function deleteRemoveDay(event){
     var jsonRequest = JSON.stringify(formData);
 
     var request = apiUrl + calendarsEndpoint + loadedCalendarName + "/" + modifyDayEndpoint;
-    /*
+    
     var xhr = new XMLHttpRequest();
     xhr.open("DELETE", request, true);
     xhr.onloadend = function () {
         if(xhr.readyState === xhr.DONE) {
             if(xhr.status === 200){
                 alert(xhr.responseText);
+                showMonthlySchedule();
             }
         }
     };
-    //xhr.send(jsonRequest);*/
+    xhr.send(jsonRequest);
 }
 
 //#endregion
@@ -363,13 +364,18 @@ function updateLoadedCalendarDisplay(calendarString){
     var firstDay = getUtcMoment(timeslots[0].date);
     var firstWeek = firstDay.week();
     var lastWeek = getUtcMoment(timeslots[timeslots.length-1].date).week();
+    var year = firstDay.year();
 
     for(i = 0; i <= (lastWeek - firstWeek); i++){
         var currentWeekTimeslots = timeslots.filter(function(timeslot){
             var timeslotDay = getUtcMoment(timeslot.date);
             return timeslotDay.week() == (firstWeek+i);
         });
-        calendarBody.appendChild(addWeekToCalendar(currentWeekTimeslots));
+        if(currentWeekTimeslots <= 0){
+            calendarBody.appendChild(addNonWeekToCalendar(firstWeek+i, year));
+        } else {
+            calendarBody.appendChild(addWeekToCalendar(currentWeekTimeslots));
+        }
     }
 
     var calendarLoadedInfo = document.getElementById(loadedCalendarLocation);
@@ -380,6 +386,21 @@ function updateLoadedCalendarDisplay(calendarString){
     calendarYear.textContent = firstDay.year();
 
     destination.appendChild(clone);
+}
+
+function addNonWeekToCalendar(week, year){
+    var template = document.getElementById(weekDisplayTemplate);
+    var clone = document.importNode(template.content, true);
+
+    var newWeek = clone.getElementById(weekDisplayBody);
+
+    // Loop through the days in the week
+    for(l = 0; l < 7; l++){
+        var nonDay = moment().year(year).week(week).day(l);
+        newWeek.appendChild(addNonDayToWeek(nonDay));
+    }
+
+    return clone;
 }
 
 function addWeekToCalendar(timeslots){
@@ -545,7 +566,7 @@ function showModifyCalendarForm(){
     $(function () {
         $(modifyDayPicker).datetimepicker({
             local: 'en',
-            format: 'L',
+            format: 'YYYY-MM-DD',
             defaultDate: new moment()
         });
     });
@@ -605,12 +626,12 @@ function mockLoadSingleCalendar(){
 $(function () {
     $(startDatePicker).datetimepicker({
         locale: 'en',
-        format: 'L',
+        format: 'YYYY-MM-DD',
         defaultDate: new moment()
     });
     $(endDatePicker).datetimepicker({
         local: 'en',
-        format: 'L',
+        format: 'YYYY-MM-DD',
         defaultDate: new moment()
     });
     $(startTimePicker).datetimepicker({
