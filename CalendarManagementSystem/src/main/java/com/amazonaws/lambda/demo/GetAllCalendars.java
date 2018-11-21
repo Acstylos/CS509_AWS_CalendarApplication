@@ -47,6 +47,7 @@ public class GetAllCalendars implements RequestStreamHandler {
         HashMap<String, String> headers = new HashMap<>();
         headers.put("Content-Type", "application/json");
         headers.put("Access-Control-Allow-Origin", "*");
+        headers.put("Access-Control-Methods", "GET");
 
         GsonBuilder builder = new GsonBuilder();
         builder.serializeNulls();
