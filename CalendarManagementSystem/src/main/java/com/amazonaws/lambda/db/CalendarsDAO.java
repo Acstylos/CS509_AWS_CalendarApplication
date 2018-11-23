@@ -4,13 +4,11 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.text.BreakIterator;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
-import javax.print.attribute.standard.Media;
-
-import com.amazonaws.lambda.model.Calendar;
+import com.amazonaws.lambda.model.CalendarModel;
 import com.amazonaws.lambda.model.Timeslots;
 
 //Access calendars data from DB
@@ -28,15 +26,14 @@ public class CalendarsDAO {
         }
     }
 
-    public Calendar getCalendar(String calendarName) throws Exception {
+    public CalendarModel loadCalendar(String calendarName) throws Exception {
 
-        Calendar loadCalendar = new Calendar(calendarName);
+        CalendarModel loadCalendar = new CalendarModel(calendarName);
         try {
             // table name is case sensitive
             PreparedStatement ps = connection
-                    .prepareStatement("select * from timeslots" + "where calendarName = ?" + "and isOpen =? ;");
+                    .prepareStatement("select * from timeslots where calendarName = ? order by date, startTime;");
             ps.setString(1, calendarName);
-            ps.setBoolean(2, true);
             ResultSet resultSet = ps.executeQuery();
 
             while (resultSet.next()) {
@@ -56,52 +53,93 @@ public class CalendarsDAO {
 
     }
 
-    // Add duplicate calendar check mechanism later
-    public boolean createCalendar(Calendar c) throws Exception {
+    public CalendarModel getCalendar(String calendarName) throws SQLException {
 
-        PreparedStatement ps1 = connection.prepareStatement("insert into calendars (name) value (?);");
-        ps1.setString(1, c.name);
-        ps1.executeUpdate();
-        ps1.close();
+        // add variables into calendars table on 11.13 to-do-list
+        CalendarModel c = new CalendarModel(calendarName);
+        PreparedStatement ps = connection.prepareStatement("select * from calendars where name =?");
+        ps.setString(1, calendarName);
+        ResultSet resultSet = ps.executeQuery();
+        if (resultSet.next()) {
+            c.startTime = resultSet.getString("startTime");
+            c.endTime = resultSet.getString("endTime");
+            c.duration = resultSet.getInt("duration");
+        }
 
-        PreparedStatement ps2 = connection
-                .prepareStatement("insert into timeslots (date, startTime, endTime, isOpen) " + "value (?, ?, ?, ?);");
+        return c;
+    }
+
+    // Add duplicate calendar check mechanism later and fill up ps1 to complete the
+    // calendars table;
+    public boolean createCalendar(CalendarModel c) throws Exception {
+
+        try {
+            PreparedStatement ps1 = connection
+                    .prepareStatement("insert into calendars (name, startTime, endTime, duration) value (?, ?, ?, ?);");
+            ps1.setString(1, c.name);
+            ps1.setString(2, c.startTime);
+            ps1.setString(3, c.endTime);
+            ps1.setInt(4, c.duration);
+            ps1.executeUpdate();
+
+            ps1.close();
+        } catch (SQLException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+            return false;
+        }
+
+        PreparedStatement ps2 = connection.prepareStatement(
+                "insert into timeslots (date, startTime, endTime, calendarName, id) value (?, ?, ?, ?, ?);");
 
         c.timeslots.forEach(ts -> {
+
             try {
+
                 ps2.setString(1, ts.date);
                 ps2.setString(2, ts.startTime);
                 ps2.setString(3, ts.endTime);
-                ps2.setBoolean(3, ts.isOpen);
+                ps2.setString(4, c.name);
+                ps2.setString(5, UUID.randomUUID().toString());
 
                 ps2.executeUpdate();
+
             } catch (SQLException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
+
             }
 
         });
         ps2.close();
-
         return true;
 
     }
 
-    public boolean deleteCalendar(String calendarName) throws Exception {
-        PreparedStatement ps = connection.prepareStatement("delete from timeslots" + "where calendarName =?;");
-        ps.setString(1, calendarName);
-        ps.executeUpdate();
-        ps = connection.prepareStatement("delete from calendars" + "where name =?;");
-        ps.setString(1, calendarName);
-        int numAffected = ps.executeUpdate();
+    public boolean deleteCalendar(String calendarName) {
+        try {
+            PreparedStatement ps = connection.prepareStatement("delete from timeslots where calendarName =?;");
+            ps.setString(1, calendarName);
+            ps.executeUpdate();
+            ps.close();
 
-        return (numAffected == 1);
+            PreparedStatement ps1 = connection.prepareStatement("delete from calendars where name =?;");
+            ps1.setString(1, calendarName);
+            int numAffected = ps1.executeUpdate();
+            ps1.close();
+
+            return (numAffected == 1);
+        } catch (Exception e) {
+            // TODO: handle exception
+            return false;
+        }
+
     }
 
     public List<String> getAllCalendars() throws Exception {
         List<String> calendars = new ArrayList<>();
         Statement statement = connection.createStatement();
-        ResultSet resultSet = statement.executeQuery("select * from calendars;");
+        ResultSet resultSet = statement.executeQuery("select * from calendars order by name;");
 
         if (resultSet != null) {
             while (resultSet.next()) {
@@ -119,12 +157,61 @@ public class CalendarsDAO {
 
     private Timeslots setTimeslots(ResultSet resultSet) throws Exception {
         // modify later when decide how a calendar will be present in the browser
+        String id = resultSet.getString("id");
         String date = resultSet.getString("date");
         String startTime = resultSet.getString("startTime");
         String endTime = resultSet.getString("endTime");
         Boolean isOpen = resultSet.getBoolean("isOpen");
+        String attendee = resultSet.getString("attendee");
+        String location = resultSet.getString("location");
 
-        return new Timeslots(date, startTime, endTime, isOpen);
+        return new Timeslots(id, date, startTime, endTime, isOpen, attendee, location);
+
+    }
+
+    public boolean addDaytoCalendar(CalendarModel c) {
+
+        PreparedStatement ps;
+        try {
+            ps = connection.prepareStatement(
+                    "insert into timeslots (date, startTime, endTime, calendarName, id) value (?, ?, ?, ?, ?);");
+            for (int i = 0; i < c.timeslots.size(); i++) {
+                ps.setString(1, c.timeslots.get(i).date);
+                ps.setString(2, c.timeslots.get(i).startTime);
+                ps.setString(3, c.timeslots.get(i).endTime);
+                ps.setString(4, c.name);
+                ps.setString(5, UUID.randomUUID().toString());
+
+            }
+
+            ps.close();
+            return true;
+
+        } catch (SQLException e) {
+
+            e.printStackTrace();
+            return false;
+        }
+
+    }
+
+    public boolean removeDayFromCalendar(String dateToRemove, String calendarName) {
+        PreparedStatement ps;
+        try {
+            ps = connection.prepareStatement("delete from timeslots where date = ? and calendarName = ?;");
+            ps.setString(1, dateToRemove);
+            ps.setString(2, calendarName);
+            int numAffected = ps.executeUpdate();
+            ps.close();
+            if (numAffected == 0)
+                return false;
+            else
+                return true;
+        } catch (SQLException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            return false;
+        }
 
     }
 

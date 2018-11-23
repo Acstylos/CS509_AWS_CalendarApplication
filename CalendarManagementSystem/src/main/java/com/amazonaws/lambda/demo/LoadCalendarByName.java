@@ -9,9 +9,7 @@ import java.io.OutputStreamWriter;
 import java.util.HashMap;
 
 import com.amazonaws.lambda.db.CalendarsDAO;
-import com.amazonaws.lambda.model.APIGatewayRequest;
-import com.amazonaws.lambda.model.APIGatewayResponse;
-import com.amazonaws.lambda.model.Calendar;
+import com.amazonaws.lambda.model.*;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.LambdaLogger;
 import com.amazonaws.services.lambda.runtime.RequestStreamHandler;
@@ -43,10 +41,10 @@ public class LoadCalendarByName implements RequestStreamHandler {
 
         if (request.getPathParameters() != null) {
             String calendarName = request.getPathParameters().calendarName;
-            logger.log("Received calendar name is" + calendarName);
-            Calendar c1 = null;
+            logger.log("Received calendar name is " + calendarName);
+            CalendarModel c1 = null;
             try {
-                c1 = cDao.getCalendar(calendarName);
+                c1 = cDao.loadCalendar(calendarName);
             } catch (Exception e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();

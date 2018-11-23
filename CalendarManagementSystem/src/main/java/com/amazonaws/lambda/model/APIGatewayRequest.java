@@ -11,6 +11,7 @@ public class APIGatewayRequest {
     
     public class PathParameters{
         public String calendarName;
+        public String timeslotID;
     }
     
     public class QueryStringParameters{

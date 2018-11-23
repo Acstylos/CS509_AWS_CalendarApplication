@@ -6,99 +6,86 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.util.Scanner;
-import java.util.spi.CalendarNameProvider;
+import java.util.HashMap;
 
-import org.apache.http.client.protocol.ResponseProcessCookies;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
-
-import com.amazonaws.AmazonServiceException;
-import com.amazonaws.SdkClientException;
+import com.amazonaws.lambda.db.CalendarsDAO;
+import com.amazonaws.lambda.model.APIGatewayRequest;
+import com.amazonaws.lambda.model.APIGatewayResponse;
+import com.amazonaws.lambda.model.CalendarModel;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.LambdaLogger;
 import com.amazonaws.services.lambda.runtime.RequestStreamHandler;
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3ClientBuilder;
-import com.amazonaws.services.s3.model.S3Object;
-import com.amazonaws.services.s3.model.S3ObjectInputStream;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 public class CreateCalendar implements RequestStreamHandler {
-	
-	
-	
-	
-	
-	
-	@Override
-    public void handleRequest(InputStream inputStream, OutputStream outputStream, Context context) throws IOException {
-	
-		JSONParser parser = new JSONParser();
-	    LambdaLogger logger = context.getLogger();
-        logger.log("Loading Java Lambda handler of RequestStreamHandler");
-        
-        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-        
-        JSONObject responseJson = new JSONObject();
-        JSONObject headerJson = new JSONObject();
-        JSONObject body = new JSONObject();
-        JSONObject responseBody = new JSONObject();
-        String id = "1";
-        String name = "";
-        String responseCode = "200";
-        String message = "Success";
-        try {
-        	JSONObject event = (JSONObject)parser.parse(reader);
-        	if (event.get("body")!=null) {
-        		body = (JSONObject)parser.parse((String)event.get("body"));
-        		// if the name exist, return 400
-        		if (body.get("calendarName") != null) {
-        			name = (String) body.get("calendarName");
-        			if (name .equals("personal"))  {
-        				responseCode = "400";
-        				message = name + " is already exist.";
-        			}
-        		} else  {
-        			responseCode = "400";
-        			message = "parameter not valid";
-        		}
-        		// should save in database
-            }
-        	// should read from the database
-        	id = "2";
-        	if (responseCode.equals("200") ) {
-        		JSONObject calendar = new JSONObject();
-        		calendar.put("name", name);
-        		calendar.put("id",id);
-        		responseBody.put("calendar", calendar);
-        	}
-        	
-        	headerJson.put("Content-Type",  "application/json");  // not sure if needed anymore?
 
-            // annoyance to ensure integration with S3 can support CORS
-            headerJson.put("Access-Control-Allow-Origin",  "*");
-            headerJson.put("Access-Control-Allow-Methods", "GET,POST");
-               
-            responseJson.put("isBase64Encoded", false);
-            responseJson.put("headers", headerJson);
-                    
-     		responseBody.put("message", message );
-            responseJson.put("statusCode", responseCode);
-            responseJson.put("body", responseBody.toString()); 
-        } catch (ParseException pex) {
-        	responseJson.put("statusCode", "400");
-        	responseJson.put("exception", pex);
+    CalendarsDAO cDao = new CalendarsDAO();
+
+    private class Body {
+        String calendarName;
+        String startDate;
+        String endDate;
+        String startTime;
+        String endTime;
+        int duration;
+    }
+
+    @Override
+    public void handleRequest(InputStream inputStream, OutputStream outputStream, Context context) throws IOException {
+
+        LambdaLogger logger = context.getLogger();
+        logger.log("Loading Java Lambda handler of ProxyWithStream: ");
+
+        HashMap<String, String> headers = new HashMap<>();
+        headers.put("Content-Type", "application/json");
+        headers.put("Access-Control-Allow-Origin", "*");
+        headers.put("Access-Control-Methods", "POST");
+
+        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+        GsonBuilder builder = new GsonBuilder();
+        builder.serializeNulls();
+        Gson gson = builder.create();
+
+        APIGatewayRequest request = gson.fromJson(reader, APIGatewayRequest.class);
+
+        Body body = gson.fromJson(request.getGody(), Body.class);
+
+        CalendarModel cModel = new CalendarModel();
+        cModel.name = body.calendarName;
+        cModel.startDate = body.startDate;
+        cModel.endDate = body.endDate;
+        cModel.startTime = body.startTime;
+        cModel.endTime = body.endTime;
+        cModel.duration = body.duration;
+
+        String result = "";
+        int statusCode = 0;
+
+        try {
+            cModel.generateTimeslots();
+            if (cDao.createCalendar(cModel)) {
+                result = gson.toJson(cDao.loadCalendar(cModel.name));
+                statusCode = 200;
+            } else {
+                result = "This calendar is existed, please create another one";
+                statusCode = 400;
+            }
+
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            result = "Something goes wrong here, please check it!";
+            statusCode = 400;
+
         }
-        	
-             
-       
-			
-        logger.log("end result:" + responseJson.toJSONString());
-        logger.log(responseJson.toJSONString());
+
+        APIGatewayResponse apiGatewayResponse = new APIGatewayResponse(statusCode, headers, result);
+        String response = gson.toJson(apiGatewayResponse);
+
         OutputStreamWriter writer = new OutputStreamWriter(outputStream, "UTF-8");
-        writer.write(responseJson.toJSONString());  
+        writer.write(response);
         writer.close();
-     }
+
+    }
 }
-	

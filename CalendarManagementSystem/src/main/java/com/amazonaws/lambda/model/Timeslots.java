@@ -1,8 +1,8 @@
 package com.amazonaws.lambda.model;
 
-import java.io.Serializable;
-
-public class Timeslots implements Serializable {
+public class Timeslots {
+    
+    public String id;
     public String date;
     public String startTime;
     public String endTime;
@@ -12,21 +12,26 @@ public class Timeslots implements Serializable {
     
     public Timeslots() {
         // TODO Auto-generated constructor stub
-        date = "2018-11-06";
-        startTime = "10:00";
-        endTime = "10:30";
-        isOpen = true;
-        attendee = null;
-        location = null;
+        
     }
 
     //
-    public Timeslots(String date, String startTime, String endTime, Boolean isOpen) {
-        // TODO Auto-generated constructor stub
+    public Timeslots(String id, String date, String startTime, String endTime, boolean isOpen, String attendee, String location) {
+        this.id = id;
         this.date = date;
         this.startTime = startTime;
         this.endTime = endTime;
         this.isOpen = isOpen;
+        this.attendee = attendee;
+        this.location = location;
         
     }
+
+    public Timeslots(String timeslotID, String attendee, String location) {
+        this.id = timeslotID;
+        this.attendee = attendee;
+        this.location = location;
+    }
+
+   
 }
