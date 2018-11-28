@@ -4,8 +4,8 @@
 
 const apiUrl = "https://x325bb0xrc.execute-api.us-east-2.amazonaws.com/Alpha/";
 const calendarsEndpoint = "calendars/";
-const timeslotsEndpoint = "timeslots/";
-const modifyDayEndpoint = "Day/";
+const timeslotsEndpoint = "Timeslots/";
+const modifyDayEndpoint = "Day";
 const meetingEndpoint = "meeting"
 
 //#endregion
@@ -54,6 +54,8 @@ const modifyDayDatePicker = "modifyDatePicker";
 const modifyCalendarDateInput = "modifyCalendarDateInput";
 
 var loadedCalendarName = "";
+var loadedScheduleDate = "";
+var loadedCalendarObject = "";
 
 //#endregion
 
@@ -66,13 +68,15 @@ const endTime = "endTime";
 const startDate = "startDate";
 const endDate = "endDate";
 const duration = "duration";
+
 const modifyCalendarDate = "date";
 
 //#endregion
 
 //#region Usable Constants
 
-const dateFormat = "YYYY-MM-DD";
+const defaultFullDateFormat = "YYYY-MM-DD";
+const defaultMonthDayFormat = "MMM DD";
 const dayCardIdPrefix = "d_";
 
 var monthLongStrings = ['January','February','March','April','May','June','July','August','September','October','November','December'];
@@ -96,7 +100,6 @@ function getCalendarByName() {
     xhr.onloadend = function () {
         if(xhr.readyState === xhr.DONE) {
             if(xhr.status === 200){
-                //displayCalendar(xhr.responseText);
                 updateLoadedCalendarDisplay(xhr.responseText);
             }
         }
@@ -156,7 +159,7 @@ function postCreateCalendar() {
     formData[endTime] = document.getElementById(createCalendarEndTime).value;
     formData[startDate] = document.getElementById(createCalendarStartDate).value;
     formData[endDate] = document.getElementById(createCalendarEndDate).value;
-    formData[duration] = document.getElementById(createCalendarDuration).value;
+    formData[duration] = Number(document.getElementById(createCalendarDuration).value);
     var jsonRequest = JSON.stringify(formData);
 
     var request = apiUrl + calendarsEndpoint;
@@ -166,18 +169,18 @@ function postCreateCalendar() {
     xhr.onloadend = function () {
         if(xhr.readyState === xhr.DONE) {
             if(xhr.status === 200){
-                //displayCalendar(xhr.responseText);
                 updateLoadedCalendarDisplay(xhr.responseText);
+                getCalendarNames();
             }
         }
     };
     xhr.send(jsonRequest);
 }
 
-function getDailySchedule(event) {
-    /*
+function getDailySchedule(event) {    
     var dayToView = event.parentElement.parentElement;
-    
+    var scheduleDate = getUtcMoment(dayToView.id, defaultMonthDayFormat);
+    /*
     var request = apiUrl + calendarsEndpoint;
 
     var xhr = new XMLHttpRequest();
@@ -192,8 +195,12 @@ function getDailySchedule(event) {
     };
     xhr.send(jsonRequest);
     // Here to prevent multi-line comment overflow */
+    var loadedCalendarTimeslots = loadedCalendarObject.timeslots.filter(function(timeslot){
+        var timeslotDate = getUtcMoment(timeslot.date);
+        return timeslotDate.month() == scheduleDate.month() && timeslotDate.date() == scheduleDate.date();
+    });
 
-    showDailySchedule(mockDailySchedule);
+    showDailySchedule(loadedCalendarTimeslots);
 }
 
 function getMonthlySchedule(){
@@ -202,8 +209,7 @@ function getMonthlySchedule(){
 
 function postCancelMeeting(event){
     var parentRow = event.parentElement;
-    // TODO: Where do I get this?
-    var timeslotId = 0;
+    var timeslotId = parentRow.id;
 
     var formData = {};
     formData["attendee"] = parentRow.children[2].value;
@@ -211,30 +217,29 @@ function postCancelMeeting(event){
     var jsonRequest = JSON.stringify(formData);
 
     var request = apiUrl + calendarsEndpoint + loadedCalendarName + "/" + timeslotsEndpoint + timeslotId + "/" + meetingEndpoint;
-    /*
+
     var xhr = new XMLHttpRequest();
     xhr.open("POST", request, true);
     xhr.onloadend = function () {
         if(xhr.readyState === xhr.DONE) {
             if(xhr.status === 200){
                 alert(xhr.responseText);
+                showMonthlySchedule();
             }
         }
     };
-    //xhr.send(jsonRequest);*/
-    alert("Canceling Meeting");
+    xhr.send(jsonRequest);
 }
 
 function putScheduleMeeting(event){
     var parentRow = event.parentElement;
+    var timeslotId = parentRow.id;
     var attendee = parentRow.children[2].value;
     var location = parentRow.children[3].value;
     if(attendee == ""){
         alert("No attendee");
         return;
     }
-    // TODO: Where do I get this?
-    var timeslotId = 0;
 
     var formData = {};
     formData["attendee"] = attendee;
@@ -242,18 +247,18 @@ function putScheduleMeeting(event){
     var jsonRequest = JSON.stringify(formData);
 
     var request = apiUrl + calendarsEndpoint + loadedCalendarName + "/" + timeslotsEndpoint + timeslotId + "/" + meetingEndpoint;
-    /*
+    
     var xhr = new XMLHttpRequest();
     xhr.open("PUT", request, true);
     xhr.onloadend = function () {
         if(xhr.readyState === xhr.DONE) {
             if(xhr.status === 200){
                 alert(xhr.responseText);
+                showMonthlySchedule();
             }
         }
     };
-    //xhr.send(jsonRequest);*/
-    alert("Scheduling Meeting");
+    xhr.send(jsonRequest);
 }
 
 function putAddNewDay(event){
@@ -262,17 +267,18 @@ function putAddNewDay(event){
     var jsonRequest = JSON.stringify(formData);
 
     var request = apiUrl + calendarsEndpoint + loadedCalendarName + "/" + modifyDayEndpoint;
-    /*
+    
     var xhr = new XMLHttpRequest();
     xhr.open("PUT", request, true);
     xhr.onloadend = function () {
         if(xhr.readyState === xhr.DONE) {
             if(xhr.status === 200){
                 alert(xhr.responseText);
+                showMonthlySchedule();
             }
         }
     };
-    //xhr.send(jsonRequest);*/
+    xhr.send(jsonRequest);
 }
 
 function deleteRemoveDay(event){
@@ -281,17 +287,18 @@ function deleteRemoveDay(event){
     var jsonRequest = JSON.stringify(formData);
 
     var request = apiUrl + calendarsEndpoint + loadedCalendarName + "/" + modifyDayEndpoint;
-    /*
+    
     var xhr = new XMLHttpRequest();
     xhr.open("DELETE", request, true);
     xhr.onloadend = function () {
         if(xhr.readyState === xhr.DONE) {
             if(xhr.status === 200){
                 alert(xhr.responseText);
+                showMonthlySchedule();
             }
         }
     };
-    //xhr.send(jsonRequest);*/
+    xhr.send(jsonRequest);
 }
 
 //#endregion
@@ -322,6 +329,9 @@ function onSelectDuration(){
  */
 function updateSelectCalendarDropdown(listOfCalendars){
     var select = document.getElementById(calendarNameSelect);
+    for (var a = select.children.length - 1; a >= 0; --a) {
+        select.children[a].remove();
+    }
     jsonCalendars = JSON.parse(listOfCalendars);
     jsonCalendars.calendars.forEach(calendarName => addCalendarOptionToSelect(calendarName, select));
 }
@@ -354,6 +364,7 @@ function updateLoadedCalendarDisplay(calendarString){
     var calendarBody = clone.getElementById(monthlyDisplayBody);
 
     var calendar = JSON.parse(calendarString);
+    loadedCalendarObject = calendar;
     // Determine where in the actual calendar the data-calendar starts and ends
     // and use this to properly create the HTML elements to display the data
     // properly
@@ -363,13 +374,18 @@ function updateLoadedCalendarDisplay(calendarString){
     var firstDay = getUtcMoment(timeslots[0].date);
     var firstWeek = firstDay.week();
     var lastWeek = getUtcMoment(timeslots[timeslots.length-1].date).week();
+    var year = firstDay.year();
 
     for(i = 0; i <= (lastWeek - firstWeek); i++){
         var currentWeekTimeslots = timeslots.filter(function(timeslot){
             var timeslotDay = getUtcMoment(timeslot.date);
             return timeslotDay.week() == (firstWeek+i);
         });
-        calendarBody.appendChild(addWeekToCalendar(currentWeekTimeslots));
+        if(currentWeekTimeslots <= 0){
+            calendarBody.appendChild(addNonWeekToCalendar(firstWeek+i, year));
+        } else {
+            calendarBody.appendChild(addWeekToCalendar(currentWeekTimeslots));
+        }
     }
 
     var calendarLoadedInfo = document.getElementById(loadedCalendarLocation);
@@ -380,6 +396,21 @@ function updateLoadedCalendarDisplay(calendarString){
     calendarYear.textContent = firstDay.year();
 
     destination.appendChild(clone);
+}
+
+function addNonWeekToCalendar(week, year){
+    var template = document.getElementById(weekDisplayTemplate);
+    var clone = document.importNode(template.content, true);
+
+    var newWeek = clone.getElementById(weekDisplayBody);
+
+    // Loop through the days in the week
+    for(l = 0; l < 7; l++){
+        var nonDay = moment().year(year).week(week).day(l);
+        newWeek.appendChild(addNonDayToWeek(nonDay));
+    }
+
+    return clone;
 }
 
 function addWeekToCalendar(timeslots){
@@ -414,7 +445,7 @@ function addNonDayToWeek(day){
     var clone = document.importNode(template.content, true);
 
     var cardDiv = clone.getElementById(calendarDayCard);
-    cardDiv.id = dayCardIdPrefix + setDateAsMonthAndDay(day.date(), day.month());
+    cardDiv.id = setDateAsMonthAndDay(day.date(), day.month());
 
     var dayDate = clone.getElementById(calendarDayCardDate);
     dayDate.textContent = setFirstDateAsMonthAndDay(day.date(), day.month());
@@ -439,7 +470,7 @@ function addDayToWeek(timeslots){
     var day = getUtcMoment(timeslots[0].date);
 
     var cardDiv = clone.getElementById(calendarDayCard);
-    cardDiv.id = dayCardIdPrefix + setDateAsMonthAndDay(day.date(), day.month());
+    cardDiv.id = setDateAsMonthAndDay(day.date(), day.month());
 
     var dayDate = clone.getElementById(calendarDayCardDate);
     dayDate.textContent = setFirstDateAsMonthAndDay(day.date(), day.month());
@@ -503,6 +534,8 @@ function addTimeslotToDailySchedule(timeslot, day){
     var template = document.getElementById(dailyDisplayTimeslotTemplate);
     var clone = document.importNode(template.content, true);
 
+    clone.children[0].children[0].id = timeslot.id;
+
     var timeslotStartTime = clone.getElementById(timeslotDisplayStartTime);
     timeslotStartTime.textContent = timeslot.startTime;
     var timeslotIsOpen = clone.getElementById(timeslotDisplayIsOpen);
@@ -545,7 +578,7 @@ function showModifyCalendarForm(){
     $(function () {
         $(modifyDayPicker).datetimepicker({
             local: 'en',
-            format: 'L',
+            format: 'YYYY-MM-DD',
             defaultDate: new moment()
         });
     });
@@ -578,7 +611,11 @@ function setDateAsMonthAndDay(date, month){
  */
 function getUtcMoment(dateString){
     // We should be using UTC so we can convert between timezones
-    return moment(dateString + "Z", dateFormat);
+    return getUtcMoment(dateString, defaultFullDateFormat);
+}
+
+function getUtcMoment(dateString, dateFormat){
+    return moment.utc(dateString, dateFormat);
 }
 
 //#endregion
@@ -605,12 +642,12 @@ function mockLoadSingleCalendar(){
 $(function () {
     $(startDatePicker).datetimepicker({
         locale: 'en',
-        format: 'L',
+        format: 'YYYY-MM-DD',
         defaultDate: new moment()
     });
     $(endDatePicker).datetimepicker({
         local: 'en',
-        format: 'L',
+        format: 'YYYY-MM-DD',
         defaultDate: new moment()
     });
     $(startTimePicker).datetimepicker({
