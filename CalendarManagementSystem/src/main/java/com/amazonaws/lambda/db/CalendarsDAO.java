@@ -181,6 +181,8 @@ public class CalendarsDAO {
                 ps.setString(3, c.timeslots.get(i).endTime);
                 ps.setString(4, c.name);
                 ps.setString(5, UUID.randomUUID().toString());
+                
+                ps.executeUpdate();
 
             }
 

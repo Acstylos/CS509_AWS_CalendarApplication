@@ -9,14 +9,22 @@ public class APIGatewayRequest {
     Headers headers;
     
     
+    public QueryStringParameters getQueryStringParameters() {
+        return queryStringParameters;
+    }
+
+
     public class PathParameters{
         public String calendarName;
         public String timeslotID;
     }
     
     public class QueryStringParameters{
-        //Refactor the name later 
-        String arg1;
+        
+        public String date;
+        public String month;
+        public String startTime;
+        
     }
     
     public class Headers{
