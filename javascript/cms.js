@@ -6,7 +6,8 @@ const apiUrl = "https://x325bb0xrc.execute-api.us-east-2.amazonaws.com/Alpha/";
 const calendarsEndpoint = "calendars/";
 const timeslotsEndpoint = "Timeslots/";
 const modifyDayEndpoint = "Day";
-const meetingEndpoint = "meeting"
+const meetingEndpoint = "meeting";
+const dailyScheduleEndpoint = "DailySchedule?date=";
 
 //#endregion
 
@@ -52,6 +53,11 @@ const loadedCalendarLocation = "loadedCalendar";
 const modifyDayTemplate = "modifyCalendarDateForm";
 const modifyDayDatePicker = "modifyDatePicker";
 const modifyCalendarDateInput = "modifyCalendarDateInput";
+//For CloseTimeslots form
+const closeTimeslotsTemplate = "closeTimeslotsForm";
+const closeTimeslotsDatePicker = "closeTimeslotDatePicker";
+const closeTimeslotsTimePicker = "closeTimeslotTimePicker";
+
 
 var loadedCalendarName = "";
 var loadedScheduleDate = "";
@@ -93,6 +99,10 @@ var monthShortStrings = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sept',
 function getCalendarByName() {
     var calendarName = document.getElementById(calendarNameSelect).value;
 
+    getCalendar(calendarName);
+}
+
+function getCalendar(calendarName){
     var request = apiUrl + calendarsEndpoint + calendarName;
 
     var xhr = new XMLHttpRequest();
@@ -180,21 +190,31 @@ function postCreateCalendar() {
 function getDailySchedule(event) {    
     var dayToView = event.parentElement.parentElement;
     var scheduleDate = getUtcMoment(dayToView.id, defaultMonthDayFormat);
+    var queryDate = scheduleDate.year()+ "-" + scheduleDate.month() + "-" + scheduleDate.date();
+    
     /*
-    var request = apiUrl + calendarsEndpoint;
+    // TODO: how do I format the date for the query?
+    var request = apiUrl + calendarsEndpoint + loadedCalendarName + "/" + dailyScheduleEndpoint + queryDate;
 
     var xhr = new XMLHttpRequest();
-    xhr.open("POST", request, true);
+    xhr.open("GET", request, true);
     xhr.onloadend = function () {
         if(xhr.readyState === xhr.DONE) {
             if(xhr.status === 200){
-                //showDailySchedule(xhr.responseText);
-                showDailySchedule(mockDailySchedule);
+                showDailySchedule(xhr.responseText);
+                //showDailySchedule(mockDailySchedule);
+            }
+            else if(xhr.status === 204){
+                alert("No schedule for the given day");
+            }
+            else if (xhr.status === 400){
+                alert(xhr.responseText);
             }
         }
     };
-    xhr.send(jsonRequest);
+    xhr.send(null);
     // Here to prevent multi-line comment overflow */
+
     var loadedCalendarTimeslots = loadedCalendarObject.timeslots.filter(function(timeslot){
         var timeslotDate = getUtcMoment(timeslot.date);
         return timeslotDate.month() == scheduleDate.month() && timeslotDate.date() == scheduleDate.date();
@@ -204,7 +224,39 @@ function getDailySchedule(event) {
 }
 
 function getMonthlySchedule(){
+    var dayToView = event.parentElement.parentElement;
+    var scheduleDate = getUtcMoment(dayToView.id, defaultMonthDayFormat);
+    var queryDate = scheduleDate.year()+ "-" + scheduleDate.month() + "-" + scheduleDate.date();
+    
+    /*
+    // TODO: how do I format the date for the query?
+    var request = apiUrl + calendarsEndpoint + loadedCalendarName + "/" + dailyScheduleEndpoint + queryDate;
 
+    var xhr = new XMLHttpRequest();
+    xhr.open("GET", request, true);
+    xhr.onloadend = function () {
+        if(xhr.readyState === xhr.DONE) {
+            if(xhr.status === 200){
+                showDailySchedule(xhr.responseText);
+                //showDailySchedule(mockDailySchedule);
+            }
+            else if(xhr.status === 204){
+                alert("No schedule for the given day");
+            }
+            else if (xhr.status === 400){
+                alert(xhr.responseText);
+            }
+        }
+    };
+    xhr.send(null);
+    // Here to prevent multi-line comment overflow */
+
+    var loadedCalendarTimeslots = loadedCalendarObject.timeslots.filter(function(timeslot){
+        var timeslotDate = getUtcMoment(timeslot.date);
+        return timeslotDate.month() == scheduleDate.month() && timeslotDate.date() == scheduleDate.date();
+    });
+
+    showDailySchedule(loadedCalendarTimeslots);
 }
 
 function postCancelMeeting(event){
@@ -353,6 +405,14 @@ function addCalendarOptionToSelect(calendarName, select){
 //#endregion
 
 //#region Show Monthly Calendar View
+
+function showFullCalendar(){
+    if(loadedCalendarName === ""){
+        alert("No calendar is loaded");
+    } else {
+        getCalendar(loadedCalendarName);
+    }
+}
 
 function updateLoadedCalendarDisplay(calendarString){
     var destination = document.getElementById(calendarDisplay);
@@ -562,8 +622,6 @@ function addTimeslotToDailySchedule(timeslot, day){
 
 //#endregion
 
-//#endregion
-
 //#region Modify Calendar Day
 
 function showModifyCalendarForm(){
@@ -580,6 +638,39 @@ function showModifyCalendarForm(){
             local: 'en',
             format: 'YYYY-MM-DD',
             defaultDate: new moment()
+        });
+    });
+
+    destination.appendChild(clone);
+}
+
+//#endregion
+
+//#region Close Timeslots
+
+function showCloseTimeslotsForm(){
+    var destination = document.getElementById(calendarDisplay);
+    destination.innerHTML = "";
+
+    var template = document.getElementById(closeTimeslotsTemplate);
+    var clone = document.importNode(template.content, true);
+
+    var closeDatePicker = clone.getElementById(closeTimeslotsDatePicker);
+    var closeTimePicker = clone.getElementById(closeTimeslotsTimePicker);
+
+    // TODO: save the calendar start time/end time, start date/end date parameters of the loaded
+    // calendar and use them to set these pickers accordingly.
+
+    $(function () {
+        $(closeDatePicker).datetimepicker({
+            local: 'en',
+            format: 'YYYY-MM-DD',
+            defaultDate: new moment()
+        });
+        $(closeTimePicker).datetimepicker({
+            local: 'en',
+            format: 'HH:mm',
+            defaultDate: '0'
         });
     });
 
@@ -661,6 +752,11 @@ $(function () {
         format: 'HH:mm',
         defaultDate: '0',
         stepping: 10
+    });
+    $(monthlySchedulePicker).datetimepicker({
+        local: 'en',
+        format: 'MMM',
+        defaultDate: new moment()
     });
 });
 

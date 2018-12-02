@@ -31,6 +31,12 @@ body {
     height: 75vh;
 }
 
+.timeslotsDayForms {
+    width: 75vh;
+    height: 50vh;
+}
+
+
 .non-calendar {
     background-color: #999999;
 }
