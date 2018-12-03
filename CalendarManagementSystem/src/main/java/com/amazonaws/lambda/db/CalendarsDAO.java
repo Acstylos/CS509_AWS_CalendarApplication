@@ -28,27 +28,19 @@ public class CalendarsDAO {
 
     public CalendarModel loadCalendar(String calendarName) throws Exception {
 
-        CalendarModel loadCalendar = null;
+        CalendarModel loadCalendar = new CalendarModel(calendarName);
         try {
             // table name is case sensitive
             PreparedStatement ps = connection
                     .prepareStatement("select * from timeslots where calendarName = ? order by date, startTime;");
             ps.setString(1, calendarName);
+
             ResultSet resultSet = ps.executeQuery();
 
-            if (ps.executeUpdate() == 0) {
-                resultSet.close();
-                ps.close();
-                
+            while (resultSet.next()) {
 
-            } else {
-                loadCalendar = new CalendarModel(calendarName);
-                while (resultSet.next()) {
-
-                    loadCalendar.timeslots.add(setTimeslots(resultSet));
-                }
+                loadCalendar.timeslots.add(setTimeslots(resultSet));
             }
-
             resultSet.close();
             ps.close();
 

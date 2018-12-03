@@ -49,7 +49,7 @@ public class LoadCalendarByName implements RequestStreamHandler {
 
             try {
                 c1 = cDao.loadCalendar(calendarName);
-                if (c1 == null) {
+                if (c1.timeslots.isEmpty()) {
                     result = "This calendar is not existed, please try another one!";
                     statusCode = 404;
 
