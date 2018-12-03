@@ -61,7 +61,9 @@ const modifyCalendarDateInput = "modifyCalendarDateInput";
 // For CloseTimeslots form
 const closeTimeslotsTemplate = "closeTimeslotsForm";
 const closeTimeslotsDatePicker = "closeTimeslotDatePicker";
+const closeTimeslotsDateInput = "closeTimeslotsDateInput";
 const closeTimeslotsTimePicker = "closeTimeslotTimePicker";
+const closeTimeslotsTimeInput = "closeTimeslotsTimeInput";
 // For Show Monthly Schedule
 const monthlyScheduleInput = "monthlyScheduleInput";
 
@@ -261,7 +263,6 @@ function postCancelMeeting(event){
     xhr.onloadend = function () {
         if(xhr.readyState === xhr.DONE) {
             if(xhr.status === 200){
-                alert(xhr.responseText);
                 reloadLoadedDay();
             }
         }
@@ -311,7 +312,6 @@ function putAddNewDay(event){
     xhr.onloadend = function () {
         if(xhr.readyState === xhr.DONE) {
             if(xhr.status === 200){
-                alert(xhr.responseText);
                 reloadLoadedCalendar()();
             }
         }
@@ -331,7 +331,6 @@ function deleteRemoveDay(event){
     xhr.onloadend = function () {
         if(xhr.readyState === xhr.DONE) {
             if(xhr.status === 200){
-                alert(xhr.responseText);
                 reloadLoadedCalendar();
             }
         }
@@ -350,7 +349,6 @@ function putCloseSpecificTimeslot(event){
     xhr.onloadend = function () {
         if(xhr.readyState === xhr.DONE) {
             if(xhr.status === 200){
-                alert(xhr.responseText);
                 reloadLoadedDay();
             }
         }
@@ -359,11 +357,42 @@ function putCloseSpecificTimeslot(event){
 }
 
 function putCloseTimeslots(){
-    var formData = {};
-    formData[modifyCalendarDate] = document.getElementById(modifyCalendarDateInput).value;
-    var jsonRequest = JSON.stringify(formData);
+    var closeByDay = document.getElementById("closeTimeslotsDay").checked;
+    var closeByTime = document.getElementById("closeTimeslotsTime").checked;
+    var closeByDayTime = document.getElementById("closeTimeslotsDayTime").checked;
 
     var queryParameters = "";
+
+    var chosenDate = "";
+    chosenDate = document.getElementById(closeTimeslotsDateInput).value;
+    var chosenTime = "";
+    chosenTime = document.getElementById(closeTimeslotsTimeInput).value;
+
+    if(closeByDay){
+        if(chosenDate === ""){
+            alert("Must select a day when closing by day.");
+            return;
+        }
+        queryParameters += "date=" + chosenDate;
+    }
+    if(closeByTime){
+        if(chosenTime === ""){
+            alert("Must select a time when closing by time.");
+            return;
+        }
+        queryParameters += "startTime=" + chosenTime;
+    }
+    if(closeByDayTime){
+        if(chosenDate === ""){
+            alert("Must select a day when closing by day.");
+            return;
+        }
+        if(chosenTime === ""){
+            alert("Must select a time when closing by time.");
+            return;
+        }
+        queryParameters += "date=" + chosenDate + "&" + "startTime=" + chosenTime;
+    }
 
     var request = apiUrl + calendarsEndpoint + loadedCalendarName + "/" + modifyTimeslotsEndpoint + queryParameters;
     
@@ -372,8 +401,10 @@ function putCloseTimeslots(){
     xhr.onloadend = function () {
         if(xhr.readyState === xhr.DONE) {
             if(xhr.status === 200){
+                reloadLoadedCalendar();
+            }
+            if(xhr.status === 400){
                 alert(xhr.responseText);
-                reloadLoadedDay()();
             }
         }
     };

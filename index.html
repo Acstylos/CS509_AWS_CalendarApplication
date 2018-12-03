@@ -184,57 +184,57 @@
                         <div class="input-group-text"><i class="fa fa-calendar"></i></div>
                     </div>
                 </div>
-                <div class="justify-content-end">
-                    <button id="addDay" class="" onclick="putAddNewDay(this)">Add Day</button>
-                    <button id="removeDay" class="" onclick="deleteRemoveDay(this)">Remove Day</button>
-                </div>
             </form>
+            <div class="justify-content-end">
+                <button id="addDay" class="" onclick="putAddNewDay(this)">Add Day</button>
+                <button id="removeDay" class="" onclick="deleteRemoveDay(this)">Remove Day</button>
+            </div>
         </template>
         <!-- Close Multiple Timeslots Form -->
         <template id="closeTimeslotsForm">
             <h5>Select Timeslot(s) to close</h5>
-            <form class="form-group row timeslotsDayForms">
-                <div class="col flex-shrink">
-                    <div id="closeTimeslotDateForm" class="row">
-                        <label for="closeTimeslotsDateInput">Timeslot: Date</label>
-                        <div id="closeTimeslotDatePicker" class="input-group date" data-target-input="nearest">
-                            <input id="closeTimeslotsDateInput" data-target="#closeTimeslotDatePicker" type="text" class="form-control datetimepicker-input">
-                            <div class="input-group-append" data-target="#closeTimeslotDatePicker" data-toggle="datetimepicker">
-                                <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+            <div class="timeslotsDayForms row">
+                <form class="form-group">
+                    <div class="col flex-shrink">
+                        <div id="closeTimeslotDateForm" class="row">
+                            <label for="closeTimeslotsDateInput">Timeslot: Date</label>
+                            <div id="closeTimeslotDatePicker" class="input-group date" data-target-input="nearest">
+                                <input id="closeTimeslotsDateInput" data-target="#closeTimeslotDatePicker" type="text" class="form-control datetimepicker-input">
+                                <div class="input-group-append" data-target="#closeTimeslotDatePicker" data-toggle="datetimepicker">
+                                    <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="closeTimeslotTimeForm" class="row">
+                            <label for="closeTimeslotsTimeInput">Timeslot: Time</label>
+                            <div id="closeTimeslotTimePicker" class="input-group date" data-target-input="nearest">
+                                <input id="closeTimeslotsTimeInput" data-target="#closeTimeslotTimePicker" type="text" class="form-control datetimepicker-input">
+                                <div class="input-group-append" data-target="#closeTimeslotTimePicker" data-toggle="datetimepicker">
+                                    <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <div id="closeTimeslotTimeForm" class="row">
-                        <label for="closeTimeslotsTimeInput">Timeslot: Time</label>
-                        <div id="closeTimeslotTimePicker" class="input-group date" data-target-input="nearest">
-                            <input id="closeTimeslotsTimeInput" data-target="#closeTimeslotTimePicker" type="text" class="form-control datetimepicker-input">
-                            <div class="input-group-append" data-target="#closeTimeslotTimePicker" data-toggle="datetimepicker">
-                                <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                    <div class="col m-2">
+                        <div id="closeTimeslotMethodForm" class="row">
+                            <div class="radio">
+                                <label><input type="radio" id="closeTimeslotsDay" name="closeTimeslotsRadio" checked>All on selected Day</label>
+                            </div>
+                            <div class="radio">
+                                <label><input type="radio" id="closeTimeslotsTime" name="closeTimeslotsRadio">All at selected Time</label>
+                            </div>
+                            <div class="radio">
+                                <label><input type="radio" id="closeTimeslotsDayTime" name="closeTimeslotsRadio">All on selected Day of the week and Time</label>
                             </div>
                         </div>
                     </div>
+                </form>
+                <div id="closeTimeslotsButtons">
+                    <button id="closeTimeslotsConfirm" class="" onclick="putCloseTimeslots()">Close Timeslots</button>
+                    <button id="closeTimeslotsCancel" class="" onclick="reloadLoadedCalendar()">Cancel</button>
                 </div>
-                <div class="col m-2">
-                    <div id="closeTimeslotMethodForm" class="row">
-                        <div class="radio">
-                            <label><input type="radio" name="closeTimeslotsRadio" checked>All on selected Day</label>
-                        </div>
-                        <div class="radio">
-                            <label><input type="radio" name="closeTimeslotsRadio">All at selected Time</label>
-                        </div>
-                        <div class="radio">
-                            <label><input type="radio" name="closeTimeslotsRadio">All on selected Day of the week and Time</label>
-                        </div>
-                        <div class="radio">
-                            <label><input type="radio" name="closeTimeslotsRadio">Specifically only this Date and Time</label>
-                        </div>
-                    </div>
-                    <div id="closeTimeslotsButtons" class="row">
-                        <button id="closeTimeslotsConfirm" class="">Close Timeslots</button>
-                        <button id="closeTimeslotsCancel" class="">Cancel</button>
-                    </div>
-                </div>
-            </form>
+            </div>
+                
         </template>
         <!-- Bootstrap JavaScript -->
         <!-- jQuery first, then Popper.js, then Bootstrap JS -->
