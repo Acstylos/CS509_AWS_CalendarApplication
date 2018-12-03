@@ -51,6 +51,7 @@ const timeslotDisplayIsOpen = "timeslotIsOpen";
 const timeslotDisplayAttendee = "timeslotAttendee";
 const timeslotDisplayLocation = "timeslotLocation";
 const timeslotDisplayButton = "meetingAction";
+const closeSpecificTimeslotButton = "closeTimeslot";
 
 const loadedCalendarLocation = "loadedCalendar";
 // For Add/Remove Day form
@@ -338,7 +339,7 @@ function deleteRemoveDay(event){
     xhr.send(jsonRequest);
 }
 
-function putCloseSpecificTimeslot(){
+function putCloseSpecificTimeslot(event){
     var parentRow = event.parentElement;
     var timeslotId = parentRow.id;
 
@@ -629,11 +630,13 @@ function addTimeslotToDailySchedule(timeslot, day){
     var timeslotLocation = clone.getElementById(timeslotDisplayLocation);
     
     var meetingActionButton = clone.getElementById(timeslotDisplayButton);
+    var closeTimeslotButton = clone.getElementById(closeSpecificTimeslotButton);
 
     if(!timeslot.isOpen){
         timeslotAttendee.disabled = true;
         timeslotLocation.disabled = true;
         meetingActionButton.disabled = true;
+        closeTimeslotButton.disabled = true;
     }
 
     var isMeeting = !(timeslot.attendee === null);
