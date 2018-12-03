@@ -119,6 +119,9 @@ function getCalendar(calendarName){
             if(xhr.status === 200){
                 updateLoadedCalendarDisplay(xhr.responseText);
             }
+            else if(xhr.status === 404){
+                alert("Calendar doesn't exist");
+            }
         }
     };
     xhr.send(null);
@@ -140,6 +143,12 @@ function deleteCalendarByName() {
             if(xhr.status === 200){
                 alert(xhr.responseText);
                 getCalendarNames();
+            }
+            else if(xhr.status === 400){
+                alert(xhr.responseText);
+            }
+            else if(xhr.status === 404){
+                alert(xhr.responseText);
             }
         }
     };
@@ -189,6 +198,9 @@ function postCreateCalendar() {
                 updateLoadedCalendarDisplay(xhr.responseText);
                 getCalendarNames();
             }
+            else if(xhr.status === 400){
+                alert(xhr.responseText);
+            }
         }
     };
     xhr.send(jsonRequest);
@@ -212,9 +224,6 @@ function getDailyScheduleByDate(scheduleDate){
         if(xhr.readyState === xhr.DONE) {
             if(xhr.status === 200){
                 showDailySchedule(xhr.responseText);
-            }
-            else if(xhr.status === 204){
-                alert("No schedule for the given day");
             }
             else if (xhr.status === 400){
                 alert(xhr.responseText);
@@ -242,6 +251,9 @@ function getMonthlySchedule(){
             if(xhr.status === 200){
                 updateLoadedCalendarDisplay(xhr.responseText);
             }
+            else if(xhr.status === 400){
+                alert(xhr.responseText);
+            }
         }
     };
     xhr.send(null);
@@ -264,6 +276,9 @@ function postCancelMeeting(event){
         if(xhr.readyState === xhr.DONE) {
             if(xhr.status === 200){
                 reloadLoadedDay();
+            }
+            else if(xhr.status === 400){
+                alert(xhr.responseText);
             }
         }
     };
@@ -295,6 +310,9 @@ function putScheduleMeeting(event){
                 alert(xhr.responseText);
                 reloadLoadedDay();
             }
+            else if(xhr.status === 400){
+                alert(xhr.responseText);
+            }
         }
     };
     xhr.send(jsonRequest);
@@ -313,6 +331,12 @@ function putAddNewDay(event){
         if(xhr.readyState === xhr.DONE) {
             if(xhr.status === 200){
                 reloadLoadedCalendar()();
+            }
+            else if(xhr.status === 204){
+                alert(xhr.responseText);
+            }
+            else if(xhr.status === 400){
+                alert(xhr.responseText);
             }
         }
     };
@@ -333,6 +357,12 @@ function deleteRemoveDay(event){
             if(xhr.status === 200){
                 reloadLoadedCalendar();
             }
+            else if(xhr.status === 400){
+                alert(xhr.responseText);
+            }
+            else if(xhr.status === 404){
+                alert(xhr.responseText);
+            }
         }
     };
     xhr.send(jsonRequest);
@@ -350,6 +380,9 @@ function putCloseSpecificTimeslot(event){
         if(xhr.readyState === xhr.DONE) {
             if(xhr.status === 200){
                 reloadLoadedDay();
+            }
+            else if(xhr.status === 400){
+                alert(xhr.responseText);
             }
         }
     };
