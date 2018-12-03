@@ -94,7 +94,7 @@
                     <div id="templateOutput" class="m-2"></div>
                     <div id="calendarControls" class="row justify-content-start">
                         <div class="col">
-                            <button id="showFullCalendar" class="" onclick="showFullCalendar()">Show Full Schedule</button>
+                            <button id="showFullCalendar" class="" onclick="reloadLoadedCalendar()">Show Full Schedule</button>
                         </div>
                         <div class="col">
                             <form>
@@ -105,8 +105,8 @@
                                         <div class="input-group-text"><i class="fa fa-calendar"></i></div>
                                     </div>
                                 </div>
-                                <button id="showMonthly" class="" onclick="showMonthlySchedule()">Show</button>
                             </form>
+                            <button id="showMonthly" class="" onclick="getMonthlySchedule()">Show</button>
                         </div>
                         <div class="col">
                             <button id="showModifyTimeslots" class="" onclick="showCloseTimeslotsForm()">Close Timeslots</button>
@@ -216,7 +216,7 @@
                 <div class="col m-2">
                     <div id="closeTimeslotMethodForm" class="row">
                         <div class="radio">
-                            <label><input type="radio" name="closeTimeslotsRadio" checked>All on selected Day of the Week</label>
+                            <label><input type="radio" name="closeTimeslotsRadio" checked>All on selected Day</label>
                         </div>
                         <div class="radio">
                             <label><input type="radio" name="closeTimeslotsRadio">All at selected Time</label>

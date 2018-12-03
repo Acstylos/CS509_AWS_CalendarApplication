@@ -5,9 +5,12 @@
 const apiUrl = "https://x325bb0xrc.execute-api.us-east-2.amazonaws.com/Alpha/";
 const calendarsEndpoint = "calendars/";
 const timeslotsEndpoint = "Timeslots/";
+const modifyTimeslotsEndpoint = "Timeslots?";
 const modifyDayEndpoint = "Day";
 const meetingEndpoint = "meeting";
+const closeTimeslotEndpoint = "Close"
 const dailyScheduleEndpoint = "DailySchedule?date=";
+const monthlyScheduleEndpoint = "MonthlySchedule?month=";
 
 //#endregion
 
@@ -39,6 +42,7 @@ const calendarDayCardInfo = "dayInfo";
 const calendarDayCardButton = "dayAction";
 // Daily Display
 const dailyDisplayTemplate = "fullDay";
+const dailyDisplayDate = "date";
 const dailyDisplayTimeslotList = "dayTimeslots";
 const dailyDisplayHeaderTemplate = "dailyScheduleHeader";
 const dailyDisplayTimeslotTemplate = "dayTimeslot";
@@ -53,15 +57,16 @@ const loadedCalendarLocation = "loadedCalendar";
 const modifyDayTemplate = "modifyCalendarDateForm";
 const modifyDayDatePicker = "modifyDatePicker";
 const modifyCalendarDateInput = "modifyCalendarDateInput";
-//For CloseTimeslots form
+// For CloseTimeslots form
 const closeTimeslotsTemplate = "closeTimeslotsForm";
 const closeTimeslotsDatePicker = "closeTimeslotDatePicker";
 const closeTimeslotsTimePicker = "closeTimeslotTimePicker";
+// For Show Monthly Schedule
+const monthlyScheduleInput = "monthlyScheduleInput";
 
 
 var loadedCalendarName = "";
-var loadedScheduleDate = "";
-var loadedCalendarObject = "";
+var loadedScheduleDate = moment(null);
 
 //#endregion
 
@@ -83,7 +88,6 @@ const modifyCalendarDate = "date";
 
 const defaultFullDateFormat = "YYYY-MM-DD";
 const defaultMonthDayFormat = "MMM DD";
-const dayCardIdPrefix = "d_";
 
 var monthLongStrings = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 var monthShortStrings = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sept','Oct','Nov','Dec'];
@@ -190,10 +194,13 @@ function postCreateCalendar() {
 function getDailySchedule(event) {    
     var dayToView = event.parentElement.parentElement;
     var scheduleDate = getUtcMoment(dayToView.id, defaultMonthDayFormat);
-    var queryDate = scheduleDate.year()+ "-" + scheduleDate.month() + "-" + scheduleDate.date();
+    loadedScheduleDate = scheduleDate;
+    getDailyScheduleByDate(scheduleDate);
+}
+
+function getDailyScheduleByDate(scheduleDate){
+    var queryDate = scheduleDate.format(defaultFullDateFormat);
     
-    /*
-    // TODO: how do I format the date for the query?
     var request = apiUrl + calendarsEndpoint + loadedCalendarName + "/" + dailyScheduleEndpoint + queryDate;
 
     var xhr = new XMLHttpRequest();
@@ -202,7 +209,6 @@ function getDailySchedule(event) {
         if(xhr.readyState === xhr.DONE) {
             if(xhr.status === 200){
                 showDailySchedule(xhr.responseText);
-                //showDailySchedule(mockDailySchedule);
             }
             else if(xhr.status === 204){
                 alert("No schedule for the given day");
@@ -213,50 +219,29 @@ function getDailySchedule(event) {
         }
     };
     xhr.send(null);
-    // Here to prevent multi-line comment overflow */
-
-    var loadedCalendarTimeslots = loadedCalendarObject.timeslots.filter(function(timeslot){
-        var timeslotDate = getUtcMoment(timeslot.date);
-        return timeslotDate.month() == scheduleDate.month() && timeslotDate.date() == scheduleDate.date();
-    });
-
-    showDailySchedule(loadedCalendarTimeslots);
 }
 
 function getMonthlySchedule(){
-    var dayToView = event.parentElement.parentElement;
-    var scheduleDate = getUtcMoment(dayToView.id, defaultMonthDayFormat);
-    var queryDate = scheduleDate.year()+ "-" + scheduleDate.month() + "-" + scheduleDate.date();
-    
-    /*
-    // TODO: how do I format the date for the query?
-    var request = apiUrl + calendarsEndpoint + loadedCalendarName + "/" + dailyScheduleEndpoint + queryDate;
+    var queryParameter = "";
+    var month = document.getElementById(monthlyScheduleInput).value;
+    queryParameter = moment().month(month).format("YYYY-MM");
+    if(queryParameter === ""){
+        alert("No Month Selected");
+        return;
+    }
 
+    var request = apiUrl + calendarsEndpoint + loadedCalendarName + "/" + monthlyScheduleEndpoint + queryParameter;
+    
     var xhr = new XMLHttpRequest();
     xhr.open("GET", request, true);
     xhr.onloadend = function () {
         if(xhr.readyState === xhr.DONE) {
             if(xhr.status === 200){
-                showDailySchedule(xhr.responseText);
-                //showDailySchedule(mockDailySchedule);
-            }
-            else if(xhr.status === 204){
-                alert("No schedule for the given day");
-            }
-            else if (xhr.status === 400){
-                alert(xhr.responseText);
+                updateLoadedCalendarDisplay(xhr.responseText);
             }
         }
     };
     xhr.send(null);
-    // Here to prevent multi-line comment overflow */
-
-    var loadedCalendarTimeslots = loadedCalendarObject.timeslots.filter(function(timeslot){
-        var timeslotDate = getUtcMoment(timeslot.date);
-        return timeslotDate.month() == scheduleDate.month() && timeslotDate.date() == scheduleDate.date();
-    });
-
-    showDailySchedule(loadedCalendarTimeslots);
 }
 
 function postCancelMeeting(event){
@@ -276,7 +261,7 @@ function postCancelMeeting(event){
         if(xhr.readyState === xhr.DONE) {
             if(xhr.status === 200){
                 alert(xhr.responseText);
-                showMonthlySchedule();
+                reloadLoadedDay();
             }
         }
     };
@@ -306,7 +291,7 @@ function putScheduleMeeting(event){
         if(xhr.readyState === xhr.DONE) {
             if(xhr.status === 200){
                 alert(xhr.responseText);
-                showMonthlySchedule();
+                reloadLoadedDay();
             }
         }
     };
@@ -326,7 +311,7 @@ function putAddNewDay(event){
         if(xhr.readyState === xhr.DONE) {
             if(xhr.status === 200){
                 alert(xhr.responseText);
-                showMonthlySchedule();
+                reloadLoadedCalendar()();
             }
         }
     };
@@ -346,11 +331,52 @@ function deleteRemoveDay(event){
         if(xhr.readyState === xhr.DONE) {
             if(xhr.status === 200){
                 alert(xhr.responseText);
-                showMonthlySchedule();
+                reloadLoadedCalendar();
             }
         }
     };
     xhr.send(jsonRequest);
+}
+
+function putCloseSpecificTimeslot(){
+    var parentRow = event.parentElement;
+    var timeslotId = parentRow.id;
+
+    var request = apiUrl + calendarsEndpoint + loadedCalendarName + "/" + timeslotsEndpoint + timeslotId + "/" + closeTimeslotEndpoint;
+    
+    var xhr = new XMLHttpRequest();
+    xhr.open("PUT", request, true);
+    xhr.onloadend = function () {
+        if(xhr.readyState === xhr.DONE) {
+            if(xhr.status === 200){
+                alert(xhr.responseText);
+                reloadLoadedDay();
+            }
+        }
+    };
+    xhr.send(null);
+}
+
+function putCloseTimeslots(){
+    var formData = {};
+    formData[modifyCalendarDate] = document.getElementById(modifyCalendarDateInput).value;
+    var jsonRequest = JSON.stringify(formData);
+
+    var queryParameters = "";
+
+    var request = apiUrl + calendarsEndpoint + loadedCalendarName + "/" + modifyTimeslotsEndpoint + queryParameters;
+    
+    var xhr = new XMLHttpRequest();
+    xhr.open("PUT", request, true);
+    xhr.onloadend = function () {
+        if(xhr.readyState === xhr.DONE) {
+            if(xhr.status === 200){
+                alert(xhr.responseText);
+                reloadLoadedDay()();
+            }
+        }
+    };
+    xhr.send(null);
 }
 
 //#endregion
@@ -406,7 +432,7 @@ function addCalendarOptionToSelect(calendarName, select){
 
 //#region Show Monthly Calendar View
 
-function showFullCalendar(){
+function reloadLoadedCalendar(){
     if(loadedCalendarName === ""){
         alert("No calendar is loaded");
     } else {
@@ -424,7 +450,6 @@ function updateLoadedCalendarDisplay(calendarString){
     var calendarBody = clone.getElementById(monthlyDisplayBody);
 
     var calendar = JSON.parse(calendarString);
-    loadedCalendarObject = calendar;
     // Determine where in the actual calendar the data-calendar starts and ends
     // and use this to properly create the HTML elements to display the data
     // properly
@@ -537,7 +562,8 @@ function addDayToWeek(timeslots){
     var dayInfo = clone.getElementById(calendarDayCardInfo);
     var meetingCount = 0;
     for(k = 0; k < timeslots.length; k++){
-        if(!timeslots[k].isOpen){
+        var isMeeting = !(timeslots[k].attendee === null);
+        if(isMeeting){
             meetingCount++;
         }
     }
@@ -546,26 +572,22 @@ function addDayToWeek(timeslots){
     return clone;
 }
 
-function showMonthlySchedule(){
-    var request = apiUrl + calendarsEndpoint + loadedCalendarName;
-
-    var xhr = new XMLHttpRequest();
-    xhr.open("GET", request, true);
-    xhr.onloadend = function () {
-        if(xhr.readyState === xhr.DONE) {
-            if(xhr.status === 200){
-                updateLoadedCalendarDisplay(xhr.responseText);
-            }
-        }
-    };
-    xhr.send(null);
-}
-
 //#endregion
 
 //#region Show Daily Schedule View
 
-function showDailySchedule(timeslots){
+function reloadLoadedDay(){
+    if(loadedScheduleDate === moment(null)){
+        alert("No day is loaded");
+    } else {
+        getDailyScheduleByDate(loadedScheduleDate);
+    }
+}
+
+function showDailySchedule(dailyCalendar){
+    var dailyCalendarJson = JSON.parse(dailyCalendar);
+    var timeslots = dailyCalendarJson.timeslots;
+
     var destination = document.getElementById(calendarDisplay);
     destination.innerHTML = "";
 
@@ -573,6 +595,9 @@ function showDailySchedule(timeslots){
     var clone = document.importNode(template.content, true);
 
     var dailySchedule = clone.getElementById(dailyDisplayTimeslotList);
+    var dateDisplay = clone.getElementById(dailyDisplayDate);
+    var date = getUtcMoment(dailyCalendarJson.timeslots[0].date).format("MMM DD");
+    dateDisplay.textContent = date;
 
     addDailyScheduleHeader(dailySchedule);
     for(i = 0; i < timeslots.length; i++){
@@ -602,8 +627,17 @@ function addTimeslotToDailySchedule(timeslot, day){
     timeslotIsOpen.textContent = timeslot.isOpen.toString();
     var timeslotAttendee = clone.getElementById(timeslotDisplayAttendee);
     var timeslotLocation = clone.getElementById(timeslotDisplayLocation);
+    
+    var meetingActionButton = clone.getElementById(timeslotDisplayButton);
 
     if(!timeslot.isOpen){
+        timeslotAttendee.disabled = true;
+        timeslotLocation.disabled = true;
+        meetingActionButton.disabled = true;
+    }
+
+    var isMeeting = !(timeslot.attendee === null);
+    if(isMeeting){
 
         timeslotAttendee.value = timeslot.attendee;
         timeslotAttendee.placeholder = "";
@@ -612,7 +646,6 @@ function addTimeslotToDailySchedule(timeslot, day){
         timeslotLocation.placeholder = "";
         timeslotLocation.disabled = true;
 
-        var meetingActionButton = clone.getElementById(timeslotDisplayButton);
         meetingActionButton.textContent = "Cancel Meeting"
         meetingActionButton.setAttribute("onclick", "postCancelMeeting(this);");
     }
