@@ -82,7 +82,7 @@ public class MeetingsDAO {
         CalendarModel tempC = new CalendarModel(calendarName);
         
         try {
-            PreparedStatement ps = connection.prepareStatement("select * from timeslots where date = ? and calendarName = ? and attendee is not null order by date, startTime");
+            PreparedStatement ps = connection.prepareStatement("select * from timeslots where date = ? and calendarName = ? order by date, startTime");
             ps.setString(1, date);
             ps.setString(2, calendarName);
             ResultSet resultSet = ps.executeQuery();
@@ -115,13 +115,13 @@ public class MeetingsDAO {
 
     }
 
-    public CalendarModel showMonthlySchedule(String calendarName, String month) {
+    public CalendarModel showMonthlySchedule(String calendarName, String yearMonth) {
         CalendarModel tempC = new CalendarModel(calendarName);
         
         try {
-            PreparedStatement ps = connection.prepareStatement("select * from timeslots where calendarName = ? and attendee is not null and date like ? order by date, startTime;");
+            PreparedStatement ps = connection.prepareStatement("select * from timeslots where calendarName = ? and date like ? order by date, startTime;");
             ps.setString(1, calendarName);
-            ps.setString(2, "%_" + month + "_%");
+            ps.setString(2, yearMonth + "_%");
             
             ResultSet resultSet = ps.executeQuery();
             

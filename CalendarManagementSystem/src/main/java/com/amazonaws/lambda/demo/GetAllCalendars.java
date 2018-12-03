@@ -35,8 +35,12 @@ public class GetAllCalendars implements RequestStreamHandler {
 
         CalendarList calendarList = new CalendarList();
 
+        int statusCode = 200;
         try {
             calendarList.calendars = cDao.getAllCalendars();
+            if(calendarList.calendars.isEmpty()) {
+                statusCode = 204;
+            }
             logger.log("Loaded calednar name is " + calendarList.calendars.size());
         } catch (Exception e) {
             // TODO Auto-generated catch block
@@ -55,7 +59,7 @@ public class GetAllCalendars implements RequestStreamHandler {
         String calendars = builder.create().toJson(calendarList);
         logger.log("Print all calendars: " + calendars);
 
-        APIGatewayResponse APIRespone = new APIGatewayResponse(200, headers, calendars);
+        APIGatewayResponse APIRespone = new APIGatewayResponse(statusCode, headers, calendars);
         String response = builder.create().toJson(APIRespone);
         OutputStreamWriter writer = new OutputStreamWriter(output, "UTF-8");
         writer.write(response);

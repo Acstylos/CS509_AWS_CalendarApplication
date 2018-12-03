@@ -47,13 +47,15 @@ public class DeleteCalendar implements RequestStreamHandler {
                 logger.log("Received calendar name is " + calendarName);
 
                 String result = "";
+                int statusCode = 200;
                 if (cDao.deleteCalendar(calendarName) != false) {
                     result = "Delete calendar is successful!";
                 } else {
                     result = "The calendar is not exist! Try another one";
+                    statusCode = 404;
                 }
 
-                APIGatewayResponse apiGatewayResponse = new APIGatewayResponse(200, headers, result);
+                APIGatewayResponse apiGatewayResponse = new APIGatewayResponse(statusCode, headers, result);
                 String response = gson.toJson(apiGatewayResponse);
 
                 OutputStreamWriter writer = new OutputStreamWriter(output, "UTF-8");

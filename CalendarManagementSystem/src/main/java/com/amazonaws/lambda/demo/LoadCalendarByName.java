@@ -19,7 +19,7 @@ import com.google.gson.GsonBuilder;
 public class LoadCalendarByName implements RequestStreamHandler {
 
     CalendarsDAO cDao = new CalendarsDAO();
-    
+
     @Override
     public void handleRequest(InputStream input, OutputStream output, Context context) throws IOException {
 
@@ -39,19 +39,32 @@ public class LoadCalendarByName implements RequestStreamHandler {
 
         APIGatewayRequest request = gson.fromJson(reader, APIGatewayRequest.class);
 
+        String result = "";
+        int statusCode = 200;
+
         if (request.getPathParameters() != null) {
             String calendarName = request.getPathParameters().calendarName;
             logger.log("Received calendar name is " + calendarName);
             CalendarModel c1 = null;
+
             try {
                 c1 = cDao.loadCalendar(calendarName);
-            } catch (Exception e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-            String result = gson.toJson(c1);
+                if (c1 == null) {
+                    result = "This calendar is not existed, please try another one!";
+                    statusCode = 404;
 
-            APIGatewayResponse apiGatewayResponse = new APIGatewayResponse(200, headers, result);
+                } else {
+                    result = gson.toJson(c1);
+                }
+
+            } catch (Exception e) {
+
+                e.printStackTrace();
+                result = "Something goes wrong here, please check it!";
+                statusCode = 400;
+            }
+
+            APIGatewayResponse apiGatewayResponse = new APIGatewayResponse(statusCode, headers, result);
             String response = gson.toJson(apiGatewayResponse);
 
             OutputStreamWriter writer = new OutputStreamWriter(output, "UTF-8");

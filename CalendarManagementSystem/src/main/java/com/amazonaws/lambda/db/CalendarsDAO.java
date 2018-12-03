@@ -28,7 +28,7 @@ public class CalendarsDAO {
 
     public CalendarModel loadCalendar(String calendarName) throws Exception {
 
-        CalendarModel loadCalendar = new CalendarModel(calendarName);
+        CalendarModel loadCalendar = null;
         try {
             // table name is case sensitive
             PreparedStatement ps = connection
@@ -36,17 +36,26 @@ public class CalendarsDAO {
             ps.setString(1, calendarName);
             ResultSet resultSet = ps.executeQuery();
 
-            while (resultSet.next()) {
+            if (ps.executeUpdate() == 0) {
+                resultSet.close();
+                ps.close();
+                
 
-                loadCalendar.timeslots.add(setTimeslots(resultSet));
+            } else {
+                loadCalendar = new CalendarModel(calendarName);
+                while (resultSet.next()) {
+
+                    loadCalendar.timeslots.add(setTimeslots(resultSet));
+                }
             }
 
             resultSet.close();
             ps.close();
 
-        } catch (SQLException e) {
-            // TODO Auto-generated catch block
+        } catch (Exception e) {
+
             e.printStackTrace();
+            return null;
         }
 
         return loadCalendar;
@@ -181,7 +190,7 @@ public class CalendarsDAO {
                 ps.setString(3, c.timeslots.get(i).endTime);
                 ps.setString(4, c.name);
                 ps.setString(5, UUID.randomUUID().toString());
-                
+
                 ps.executeUpdate();
 
             }
