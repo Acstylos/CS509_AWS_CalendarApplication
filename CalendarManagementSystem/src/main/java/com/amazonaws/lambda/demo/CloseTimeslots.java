@@ -61,7 +61,7 @@ public class CloseTimeslots implements RequestStreamHandler {
                         result = "Timeslots are closed successfully!";
                         statusCode = 200;
                     } else {
-                        result = "These timeslots have already been closed, please choose another one!";
+                        result = "Invalid timeslots, please choose another one!";
                         statusCode = 400;
                     }
                 } else if (request.getQueryStringParameters().date == null) {
@@ -71,7 +71,7 @@ public class CloseTimeslots implements RequestStreamHandler {
                         result = "Timeslots are closed successfully!";
                         statusCode = 200;
                     } else {
-                        result = "These timeslots have already been closed, please choose another one!";
+                        result = "Invalid timeslots, please choose another one!";
                         statusCode = 400;
                     }
                 } else {
@@ -81,7 +81,7 @@ public class CloseTimeslots implements RequestStreamHandler {
                         result = "Timeslots are closed successfully!";
                         statusCode = 200;
                     } else {
-                        result = "This timeslots have already been closed, please choose another one!";
+                        result = "Invalid timeslots, please choose another one!";
                         statusCode = 400;
                     }
                 }
