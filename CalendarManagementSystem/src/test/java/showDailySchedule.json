@@ -1,0 +1,10 @@
+{
+	"path": "/calendars/{calendarName}/DailySchedule",
+	"httpMethod":"GET",
+	"pathParameters":{
+		"calendarName":"department"
+	},
+	"queryStringParameters":{
+		"date":"2018-10-29"
+	}
+}

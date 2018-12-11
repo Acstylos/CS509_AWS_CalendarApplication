@@ -90,29 +90,26 @@ public class CalendarsDAO {
             return false;
         }
 
-        PreparedStatement ps2 = connection.prepareStatement(
-                "insert into timeslots (date, startTime, endTime, calendarName, id) value (?, ?, ?, ?, ?);");
+        try {
+            PreparedStatement ps2 = connection.prepareStatement(
+                    "insert into timeslots (date, startTime, endTime, calendarName, id) value (?, ?, ?, ?, ?);");
 
-        c.timeslots.forEach(ts -> {
-
-            try {
-
-                ps2.setString(1, ts.date);
-                ps2.setString(2, ts.startTime);
-                ps2.setString(3, ts.endTime);
+            for (int i = 0; i < c.timeslots.size(); i++) {
+                ps2.setString(1, c.timeslots.get(i).date);
+                ps2.setString(2, c.timeslots.get(i).startTime);
+                ps2.setString(3, c.timeslots.get(i).endTime);
                 ps2.setString(4, c.name);
                 ps2.setString(5, UUID.randomUUID().toString());
 
                 ps2.executeUpdate();
-
-            } catch (SQLException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-
             }
 
-        });
-        ps2.close();
+            ps2.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+
         return true;
 
     }

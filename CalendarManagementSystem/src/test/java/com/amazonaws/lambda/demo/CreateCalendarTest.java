@@ -1,7 +1,9 @@
 package com.amazonaws.lambda.demo;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -10,6 +12,7 @@ import java.sql.SQLException;
 
 import org.json.simple.JSONObject;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -32,17 +35,17 @@ public class CreateCalendarTest {
 	@BeforeClass
     public static void createInput() throws IOException {
         // TODO: set up your sample input object here.
-    	JSONObject Body = new JSONObject();
-    	Body.put("calendarName", testname);
-    	Body.put("startTime", "09:00");
-    	Body.put("endTime", "12:00");
-    	Body.put("startDate", "2018-10-12");
-    	Body.put("endDate", "2018-10-30");
-    	Body.put("duration", 30);
-    	JSONObject in = new JSONObject();
-    	in.put("body", Body.toString());
+        JSONObject Body = new JSONObject();
+        Body.put("calendarName", testname);
+        Body.put("startTime", "09:00");
+        Body.put("endTime", "12:00");
+        Body.put("startDate", "2018-10-12");
+        Body.put("endDate", "2018-10-30");
+        Body.put("duration", 30);
+        JSONObject in = new JSONObject();
+        in.put("body", Body.toString());
         input = new ByteArrayInputStream(in.toString().getBytes(StandardCharsets.UTF_8));
-    }
+    	    }
 
     private Context createContext() {
         TestContext ctx = new TestContext();

@@ -68,7 +68,7 @@ public class CreateCalendar implements RequestStreamHandler {
                 result = gson.toJson(cDao.loadCalendar(cModel.name));
                 statusCode = 200;
             } else {
-                result = "This calendar is existed, please create another one";
+                result = "This calendar is not valid, please create another one";
                 statusCode = 400;
             }
 

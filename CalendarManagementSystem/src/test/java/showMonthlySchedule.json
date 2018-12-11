@@ -1,0 +1,10 @@
+{
+	"path": "/calendars/{calendarName}/MonthlySchedule",
+	"httpMethod":"GET",
+	"pathParameters":{
+		"calendarName":"department"
+	},
+	"queryStringParameters":{
+		"month":"2018-11"
+	}
+}
