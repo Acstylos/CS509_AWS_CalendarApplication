@@ -6,14 +6,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.sql.SQLException;
 
 import org.json.simple.JSONObject;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.amazonaws.lambda.model.APIGatewayRequest;
+import com.amazonaws.lambda.db.CalendarsDAO;
 import com.amazonaws.lambda.model.APIGatewayResponse;
+import com.amazonaws.lambda.model.CalendarModel;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -24,13 +26,14 @@ import com.google.gson.GsonBuilder;
 public class CreateCalendarTest {
 
     private static InputStream input;
+    private static String testname = "personal";
 
     @SuppressWarnings("unchecked")
 	@BeforeClass
     public static void createInput() throws IOException {
         // TODO: set up your sample input object here.
     	JSONObject Body = new JSONObject();
-    	Body.put("calendarName", "personal");
+    	Body.put("calendarName", testname);
     	Body.put("startTime", "09:00");
     	Body.put("endTime", "12:00");
     	Body.put("startDate", "2018-10-12");
@@ -72,6 +75,17 @@ public class CreateCalendarTest {
 
         // TODO: validate output here if needed.
         Assert.assertEquals(200, response.getStatusCode());
+        // connect with db here and validate if the new one has created
+        CalendarsDAO cDao = new CalendarsDAO();
+        try {
+			CalendarModel calendar = cDao.getCalendar(testname);
+			Assert.assertEquals(calendar.name, testname);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			Assert.fail("Not created");
+		}
+        // delete the test case
+        cDao.deleteCalendar(testname);
     }
 }
 
