@@ -1,0 +1,8 @@
+{
+	"path":"/calendars/{calendarName}/Day",
+	"httpMethod":"DELETE",
+	"pathParameters":{
+	        "calendarName":"department"
+	},
+	"body":"{\"date\":\"2018-10-20\"}"
+}

@@ -1,0 +1,7 @@
+{
+	"path":"/calendars/{calendarName}",
+	"httpMethod":"GET",
+	"pathParameters":{
+		"calendarName":"department"
+	}
+}
