@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -24,7 +25,7 @@ import com.google.gson.GsonBuilder;
 /**
  * A simple test harness for locally invoking your Lambda function handler.
  */
-public class MeetingScheduleTest {
+public class LambdaFunctionsTest {
 
     private static InputStream input;
     private static String testname = "personal";
@@ -52,6 +53,30 @@ public class MeetingScheduleTest {
         ctx.setFunctionName("Current test lambdaFunction" + lambdaFunction);
 
         return ctx;
+    }
+    
+    @Test
+    public void testCreateCalendars() throws Exception {
+        File inputFile = new File("src/test/java/createCalendar.json");
+        input = new FileInputStream(inputFile);
+        
+        CreateCalendar createCalendar = new CreateCalendar();
+        OutputStream outputStream = new ByteArrayOutputStream();
+        Context context = createContext("createCalendar");
+        
+        createCalendar.handleRequest(input, outputStream, context);
+        
+        GsonBuilder builder = new GsonBuilder();
+        builder.serializeNulls();
+        Gson gson = builder.create();
+
+        APIGatewayResponse response = gson.fromJson(outputStream.toString(), APIGatewayResponse.class);
+
+        Assert.assertEquals(200, response.getStatusCode());
+        
+        CalendarsDAO cDao = new CalendarsDAO();
+        cDao.deleteCalendar(testname);
+        
     }
     
     @Test

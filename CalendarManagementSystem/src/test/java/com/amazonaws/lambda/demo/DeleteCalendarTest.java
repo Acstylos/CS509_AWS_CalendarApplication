@@ -3,6 +3,8 @@ package com.amazonaws.lambda.demo;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -74,7 +76,7 @@ public class DeleteCalendarTest {
     }
 
 	@Test
-    public void testLambdaFunctionHandler() {
+    public void testLambdaFunctionHandler() throws Exception {
         CalendarsDAO cDao = new CalendarsDAO();
 		BufferedReader reader = new BufferedReader(new InputStreamReader(input));  
         DeleteCalendar handler = new DeleteCalendar();
@@ -82,22 +84,15 @@ public class DeleteCalendarTest {
         GsonBuilder builder = new GsonBuilder();
         builder.serializeNulls();
         Gson gson = builder.create();
-        APIGatewayRequest request = gson.fromJson(reader, APIGatewayRequest.class);
-        try {
-			String calendarName = java.net.URLDecoder.decode(request.getPathParameters().calendarName, "UTF-8");
-			System.out.println(calendarName);
-			cDao.deleteCalendar(calendarName);
-		} catch (UnsupportedEncodingException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
+        
         OutputStream output = new ByteArrayOutputStream();
-        try {
-			handler.handleRequest(input,output, ctx);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+        
+        File inputFile = new File("src/test/java/deleteCalendar.json");
+
+        input = new FileInputStream(inputFile);
+        
+        handler.handleRequest(input, output, ctx);
+        
         
         APIGatewayResponse response = gson.fromJson(output.toString(), APIGatewayResponse.class);
 

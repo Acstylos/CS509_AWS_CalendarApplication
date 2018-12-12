@@ -1,0 +1,5 @@
+{
+	"path": "/calendars",
+	"httpMethod":"POST",
+	"body":"{\"calendarName\":\"personal\",\"startDate\":\"2018-10-12\",\"endDate\":\"2018-10-30\",\"startTime\":\"09:00\",\"endTime\":\"17:00\",\"duration\":30}"
+}

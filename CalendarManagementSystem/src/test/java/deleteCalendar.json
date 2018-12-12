@@ -1,0 +1,7 @@
+{
+	"path": "/calendars/{calendarName}",
+	"httpMethod":"DELETE",
+	"pathParameters":{
+		"calendarName":"personal"
+	}
+}
