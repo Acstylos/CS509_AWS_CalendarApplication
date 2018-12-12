@@ -16,6 +16,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.amazonaws.lambda.db.CalendarsDAO;
+import com.amazonaws.lambda.db.MeetingsDAO;
 import com.amazonaws.lambda.model.APIGatewayResponse;
 import com.amazonaws.lambda.model.CalendarModel;
 import com.amazonaws.services.lambda.runtime.Context;
@@ -41,8 +42,6 @@ public class LambdaFunctionsTest {
             // TODO Auto-generated catch block
             Assert.fail("Not created");
         }
-        
-        
 
     }
 
@@ -54,18 +53,18 @@ public class LambdaFunctionsTest {
 
         return ctx;
     }
-    
+
     @Test
     public void testCreateCalendars() throws Exception {
         File inputFile = new File("src/test/java/createCalendar.json");
         input = new FileInputStream(inputFile);
-        
+
         CreateCalendar createCalendar = new CreateCalendar();
         OutputStream outputStream = new ByteArrayOutputStream();
         Context context = createContext("createCalendar");
-        
+
         createCalendar.handleRequest(input, outputStream, context);
-        
+
         GsonBuilder builder = new GsonBuilder();
         builder.serializeNulls();
         Gson gson = builder.create();
@@ -73,22 +72,22 @@ public class LambdaFunctionsTest {
         APIGatewayResponse response = gson.fromJson(outputStream.toString(), APIGatewayResponse.class);
 
         Assert.assertEquals(200, response.getStatusCode());
-        
+
         CalendarsDAO cDao = new CalendarsDAO();
         cDao.deleteCalendar(testname);
-        
+
     }
-    
+
     @Test
     public void testGetAllCalendars() throws Exception {
         input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-        
+
         GetAllCalendars getAllCalendars = new GetAllCalendars();
         OutputStream output = new ByteArrayOutputStream();
-        
+
         Context context = createContext("GetAllCalendars");
         getAllCalendars.handleRequest(input, output, context);
-        
+
         GsonBuilder builder = new GsonBuilder();
         builder.serializeNulls();
         Gson gson = builder.create();
@@ -104,7 +103,7 @@ public class LambdaFunctionsTest {
         File inputFile = new File("src/test/java/showDailySchedule.json");
 
         input = new FileInputStream(inputFile);
-        
+
         ShowDailySchedule dailySchedule = new ShowDailySchedule();
         Context context = createContext("showDailySchedule");
 
@@ -138,5 +137,70 @@ public class LambdaFunctionsTest {
         APIGatewayResponse response = gson.fromJson(output.toString(), APIGatewayResponse.class);
 
         Assert.assertEquals(200, response.getStatusCode());
+    }
+
+    @Test
+    public void testLoadCalendarByName() throws Exception {
+        File inputFile = new File("src/test/java/LoadCalendarByName.json");
+
+        input = new FileInputStream(inputFile);
+        LoadCalendarByName name = new LoadCalendarByName();
+        Context context = createContext("LoadCalendarByName");
+
+        OutputStream output = new ByteArrayOutputStream();
+        name.handleRequest(input, output, context);
+
+        GsonBuilder builder = new GsonBuilder();
+        builder.serializeNulls();
+        Gson gson = builder.create();
+
+        APIGatewayResponse response = gson.fromJson(output.toString(), APIGatewayResponse.class);
+
+        Assert.assertEquals(200, response.getStatusCode());
+
+    }
+
+    @Test
+    public void testRemoveDayFromCalendar() throws Exception {
+        File inputFile = new File("src/test/java/RemoveDayFromCalendar.json");
+
+        input = new FileInputStream(inputFile);
+        RemoveDayFromCalendar rdc = new RemoveDayFromCalendar();
+        Context context = createContext("RemoveDayFromCalendar");
+
+        OutputStream output = new ByteArrayOutputStream();
+        rdc.handleRequest(input, output, context);
+
+        GsonBuilder builder = new GsonBuilder();
+        builder.serializeNulls();
+        Gson gson = builder.create();
+
+        APIGatewayResponse response = gson.fromJson(output.toString(), APIGatewayResponse.class);
+
+        Assert.assertEquals(400, response.getStatusCode());
+    }
+
+    @Test
+    public void testScheduleMeeting() throws Exception {
+        File inputFile = new File("src/test/java/ScheduleMeeting.json");
+
+        input = new FileInputStream(inputFile);
+        ScheduleMeeting SM = new ScheduleMeeting();
+        Context context = createContext("ScheduleMeeting");
+
+        OutputStream output = new ByteArrayOutputStream();
+        SM.handleRequest(input, output, context);
+
+        GsonBuilder builder = new GsonBuilder();
+        builder.serializeNulls();
+        Gson gson = builder.create();
+
+        APIGatewayResponse response = gson.fromJson(output.toString(), APIGatewayResponse.class);
+
+        Assert.assertEquals(200, response.getStatusCode());
+        
+        MeetingsDAO mDao = new MeetingsDAO();
+        mDao.cancelMeeting("0d5b1ab7-86f2-4d0c-a506-ec87a9d0f731");//TimeslotID comes from db and is stored in scheduleMeeting.json file
+
     }
 }
