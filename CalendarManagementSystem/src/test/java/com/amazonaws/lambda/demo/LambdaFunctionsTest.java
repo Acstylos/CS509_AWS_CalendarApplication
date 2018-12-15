@@ -200,7 +200,7 @@ public class LambdaFunctionsTest {
         Assert.assertEquals(200, response.getStatusCode());
         
         MeetingsDAO mDao = new MeetingsDAO();
-        mDao.cancelMeeting("0d5b1ab7-86f2-4d0c-a506-ec87a9d0f731");//TimeslotID comes from db and is stored in scheduleMeeting.json file
+        mDao.cancelMeeting("0d5b1ab7-86f2-4d0c-a506-ec87a9d0f731");//TimeslotID comes from DB and is stored in scheduleMeeting.json file
 
     }
 }
